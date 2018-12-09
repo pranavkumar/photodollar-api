@@ -1,0 +1,16 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "mongoDs": {
+    "host": "",
+    "port": 0,
+    "url": "",
+    "database": "coverage-dev",
+    "password": "ea223f2ad93b3ebf2d1de9b7e256b8cb",
+    "name": "mongoDs",
+    "user": "coverageapiclient",
+    "connector": "mongodb"
+  }
+}
