@@ -55,5 +55,9 @@
   "Location": {
     "dataSource": "mongoDs",
     "public": true
+  },
+  "Category": {
+    "dataSource": "mongoDs",
+    "public": true
   }
 }

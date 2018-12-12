@@ -6,7 +6,16 @@
   "options": {
     "validateUpsert": true
   },
-  "properties": {},
+  "properties": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "categoryIds":{
+      "type":["string"],
+      "required":true
+    }
+  },
   "validations": [],
   "relations": {
     "UUser": {
@@ -18,15 +27,15 @@
       "model": "UResponse",
       "foreignKey": "UResponseId"
     },
-    "from":{
-      "type":"embedsOne",
-      "model":"Location",
-      "property":"from"
+    "from": {
+      "type": "embedsOne",
+      "model": "Location",
+      "property": "from"
     },
-    "to":{
-      "type":"embedsOne",
-      "model":"Location",
-      "property":"to"
+    "to": {
+      "type": "embedsOne",
+      "model": "Location",
+      "property": "to"
     }
   },
   "acls": [],
