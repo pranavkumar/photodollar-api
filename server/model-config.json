@@ -14,7 +14,8 @@
     ]
   },
   "User": {
-    "dataSource": "db"
+    "dataSource": "db",
+    "public": false
   },
   "AccessToken": {
     "dataSource": "db",
@@ -36,6 +37,22 @@
     "public": false
   },
   "Map": {
+    "dataSource": "mongoDs",
+    "public": true
+  },
+  "URequest": {
+    "dataSource": "mongoDs",
+    "public": true
+  },
+  "UResponse": {
+    "dataSource": "mongoDs",
+    "public": true
+  },
+  "UUser": {
+    "dataSource": "mongoDs",
+    "public": true
+  },
+  "Location": {
     "dataSource": "mongoDs",
     "public": true
   }

@@ -10,7 +10,19 @@ module.exports = function(Map) {
                 key: key,
                 sessiontoken: "12345"
             },
-            json:true
+            json: true
+        }, function(err, response, body) {
+            cb(err, body);
+        })
+    }
+    Map.geocode = function(address, cb) {
+        request({
+            url: 'https://maps.googleapis.com/maps/api/geocode/json',
+            qs: {
+                address: address,
+                key: key
+            },
+            json: true
         }, function(err, response, body) {
             cb(err, body);
         })
@@ -23,11 +35,26 @@ module.exports = function(Map) {
         returns: {
             arg: 'result',
             type: 'object',
-            root:true
+            root: true
         },
         http: {
             verb: 'GET',
             path: '/autocomplete'
+        }
+    });
+    Map.remoteMethod('geocode', {
+        accepts: [{
+            arg: 'address',
+            type: 'string'
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'GET',
+            path: '/geocode'
         }
     });
 };

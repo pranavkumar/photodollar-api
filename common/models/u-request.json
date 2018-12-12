@@ -1,0 +1,34 @@
+{
+  "name": "URequest",
+  "plural": "URequests",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {},
+  "validations": [],
+  "relations": {
+    "UUser": {
+      "type": "belongsTo",
+      "model": "UUser"
+    },
+    "UResponse": {
+      "type": "hasMany",
+      "model": "UResponse",
+      "foreignKey": "UResponseId"
+    },
+    "from":{
+      "type":"embedsOne",
+      "model":"Location",
+      "property":"from"
+    },
+    "to":{
+      "type":"embedsOne",
+      "model":"Location",
+      "property":"to"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
