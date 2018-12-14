@@ -6,14 +6,19 @@
   "options": {
     "validateUpsert": true
   },
+  "mixins": {
+    "TimeStamp": true
+  },
   "properties": {
     "title": {
       "type": "string",
       "required": true
     },
-    "categoryIds":{
-      "type":["string"],
-      "required":true
+    "categoryIds": {
+      "type": [
+        "string"
+      ],
+      "required": true
     }
   },
   "validations": [],
@@ -39,8 +44,5 @@
     }
   },
   "acls": [],
-  "methods": {},
-  "mixins":{
-    "TimeStamp":true
-  }
+  "methods": {}
 }

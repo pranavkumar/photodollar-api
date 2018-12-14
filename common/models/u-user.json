@@ -6,6 +6,9 @@
   "options": {
     "validateUpsert": true
   },
+  "mixins": {
+    "TimeStamp": true
+  },
   "properties": {
     "firstname": {
       "type": "string",
@@ -31,8 +34,5 @@
   "validations": [],
   "relations": {},
   "acls": [],
-  "methods": {},
-  "mixins":{
-    "TimeStamp":true
-  }
+  "methods": {}
 }

@@ -60,5 +60,9 @@
   "Category": {
     "dataSource": "mongoDs",
     "public": true
+  },
+  "Storage": {
+    "dataSource": "storage",
+    "public": true
   }
 }
