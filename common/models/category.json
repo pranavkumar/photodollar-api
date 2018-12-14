@@ -15,5 +15,8 @@
   "validations": [],
   "relations": {},
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "mixins":{
+    "TimeStamp":true
+  }
 }
