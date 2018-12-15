@@ -22,7 +22,8 @@
     "loopback-ds-timestamp-mixin": "^3.4.1",
     "request": "^2.88.0",
     "serve-favicon": "^2.0.1",
-    "strong-error-handler": "^2.0.0"
+    "strong-error-handler": "^2.0.0",
+    "uniqid": "^5.0.3"
   },
   "devDependencies": {
     "eslint": "^3.17.1",

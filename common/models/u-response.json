@@ -9,9 +9,22 @@
   "mixins": {
     "TimeStamp": true
   },
-  "properties": {},
+  "properties": {
+    "comment":{
+      "type":"string"
+    },
+    "image":{
+      "type":"object"
+    }
+  },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "user":{
+      "type":"belongsTo",
+      "model":"UUser",
+      "foreignKey":"UUserId"
+    }
+  },
   "acls": [],
   "methods": {}
 }
