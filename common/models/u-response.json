@@ -10,19 +10,19 @@
     "TimeStamp": true
   },
   "properties": {
-    "comment":{
-      "type":"string"
+    "comment": {
+      "type": "string"
     },
-    "image":{
-      "type":"object"
+    "image": {
+      "type": "object"
     }
   },
   "validations": [],
   "relations": {
-    "user":{
-      "type":"belongsTo",
-      "model":"UUser",
-      "foreignKey":"UUserId"
+    "user": {
+      "type": "belongsTo",
+      "model": "UUser",
+      "foreignKey": "UUserId"
     }
   },
   "acls": [],

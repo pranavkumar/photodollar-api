@@ -27,7 +27,7 @@
       "type": "belongsTo",
       "model": "UUser"
     },
-    "UResponse": {
+    "UResponses": {
       "type": "hasMany",
       "model": "UResponse",
       "foreignKey": "UResponseId"

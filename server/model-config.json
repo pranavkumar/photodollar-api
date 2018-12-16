@@ -64,5 +64,9 @@
   "Storage": {
     "dataSource": "storage",
     "public": true
+  },
+  "UContact": {
+    "dataSource": "mongoDs",
+    "public": true
   }
 }
