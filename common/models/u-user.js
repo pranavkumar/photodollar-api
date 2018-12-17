@@ -1,12 +1,12 @@
 'use strict';
 module.exports = function(UUser) {
-    UUser.addContacts = async (id, data) => {
+    UUser.addContacts = async (id, contacts) => {
         try {
             let uUser = await UUser.findById(id);
             if (!uUser) {
                 throw new Error(`UUserId ${id} does not exist.`);
             }
-            let res = await Promise.all(data.map((contact) => uUser.contacts.create(contact)));
+            let res = await Promise.all(contacts.map((contact) => uUser.contacts.create(contact)));
             return res;
         } catch (err) {
             throw err;
