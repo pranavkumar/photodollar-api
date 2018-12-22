@@ -6,7 +6,7 @@ var app = module.exports = loopback();
 var path = require("path");
 var fileapp = express();
 fileapp.use('/files/responseImages', express.static(path.resolve(__dirname, '../storage/responseImages')));
-// app.use(loopback.static('/images', path.resolve(__dirname, '../storage/responseImages')));
+fileapp.use('/files/userProfileImages', express.static(path.resolve(__dirname, '../storage/userProfileImages')));
 app.start = function() {
     fileapp.listen(5500);
     // start the web server

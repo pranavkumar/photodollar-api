@@ -23,12 +23,19 @@
       "required": true
     },
     "mobileCode": {
-      "type": "number",
+      "type": "string",
       "required": true
     },
     "country": {
       "type": "string",
       "required": true
+    },
+    "profileImage":{
+      "type":"object"
+    },
+    "points":{
+      "type":"number",
+      "default":1000
     }
   },
   "validations": [],
