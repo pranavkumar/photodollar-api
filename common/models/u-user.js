@@ -29,7 +29,7 @@ module.exports = function(UUser) {
         },
         http: {
             verb: 'post',
-            path: '/:id/addContacts'
+            path: '/:id/contacts/multi'
         }
     });
 };
