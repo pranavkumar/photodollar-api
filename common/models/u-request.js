@@ -16,10 +16,14 @@ module.exports = function(URequest) {
     }
     URequest.addExpectator = async (id, expectator) => {
         try {
+            
             let uRequest = await URequest.findById(id);
             if (!uRequest) {
                 throw new Error(`No request with id ${id}`);
                 return;
+            }
+            if (!expectator.id) {
+                throw new Error("Invalid expectator id");
             }
             let uUser = await app.models.UUser.findById(expectator.id);
             if (!uUser) {
@@ -30,6 +34,9 @@ module.exports = function(URequest) {
                 return o.id == expectator.id;
             })
             if (index < 0) {
+                if (!expectator.points || isNaN(expectator.points)) {
+                    throw new Error("Invalid expectator points");
+                }
                 let subtractPoints = expectator.points;
                 let finalPoints = uUser.points - subtractPoints;
                 if (finalPoints < 0) {
@@ -55,7 +62,7 @@ module.exports = function(URequest) {
                 };
             }
         } catch (err) {
-            throw err
+            throw err;
         }
     }
     URequest.remoteMethod('getExpectators', {
@@ -82,7 +89,8 @@ module.exports = function(URequest) {
             type: "object",
             http: {
                 source: "body"
-            }
+            },
+            required: true
         }],
         returns: {
             arg: 'result',

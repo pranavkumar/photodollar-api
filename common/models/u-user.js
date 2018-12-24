@@ -13,8 +13,6 @@ module.exports = function(UUser) {
             });
             requests = _.map(requests, (request) => {
                 let index = _.findIndex(request.expectators, function(o) {
-                    console.log(o);
-                    console.log(id);
                     return o.id == id;
                 })
                 if (index >= 0) {
