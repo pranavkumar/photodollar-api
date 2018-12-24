@@ -20,10 +20,9 @@
       ],
       "required": true
     },
-    "expectatorIds":{
-      "type": [
-        "string"
-      ]
+    "expectators":{
+      "type": "array",
+      "default":[]
     }
   },
   "validations": [],
