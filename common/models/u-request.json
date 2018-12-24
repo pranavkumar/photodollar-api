@@ -19,6 +19,11 @@
         "string"
       ],
       "required": true
+    },
+    "expectatorIds":{
+      "type": [
+        "string"
+      ]
     }
   },
   "validations": [],
