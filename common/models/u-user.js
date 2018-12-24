@@ -28,12 +28,15 @@ module.exports = function(UUser) {
         }
     }
     UUser.addContacts = async (id, contacts) => {
+        console.log(contacts[0]);
         try {
             let uUser = await UUser.findById(id);
             if (!uUser) {
                 throw new Error(`UUserId ${id} does not exist.`);
             }
             let res = await Promise.all(contacts.map((contact) => uUser.contacts.create(contact)));
+            uUser.lastContactSync = new Date().toISOString();
+            await uUser.save();
             return res;
         } catch (err) {
             throw err;
