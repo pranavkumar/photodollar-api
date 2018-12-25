@@ -20,8 +20,12 @@
       ],
       "required": true
     },
-    "expectators":{
+    "expectations":{
       "type": "array",
+      "default":[]
+    },
+    "forwards":{
+      "type":"array",
       "default":[]
     }
   },

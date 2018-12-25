@@ -12,7 +12,7 @@ module.exports = function(UUser) {
                 include: ["UResponses", "UUser"]
             });
             requests = _.map(requests, (request) => {
-                let index = _.findIndex(request.expectators, function(o) {
+                let index = _.findIndex(request.expectations, function(o) {
                     return o.id == id;
                 })
                 if (index >= 0) {
@@ -28,7 +28,6 @@ module.exports = function(UUser) {
         }
     }
     UUser.addContacts = async (id, contacts) => {
-        console.log(contacts[0]);
         try {
             let uUser = await UUser.findById(id);
             if (!uUser) {
@@ -42,6 +41,34 @@ module.exports = function(UUser) {
             throw err;
         }
     }
+    UUser.getForwardables = async (id) => {
+        try {
+            let uUser = await UUser.findById(id);
+            let contacts = await uUser.contacts.find({});
+            let forwardables = _.map(contacts,(contact)=>{
+                return _.pick(contact,['name','id','UUserId','normalizedMobile'])
+            });
+
+            return forwardables;
+        } catch (err) {
+            throw err
+        }
+    }
+    UUser.remoteMethod('getForwardables', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }],
+        returns: {
+            arg: 'result',
+            type: 'array',
+            root:true
+        },
+        http: {
+            verb: 'get',
+            path: '/:id/forwardables'
+        }
+    });
     UUser.remoteMethod('addContacts', {
         accepts: [{
             arg: 'id',

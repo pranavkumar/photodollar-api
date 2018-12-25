@@ -8,8 +8,8 @@ module.exports = function(URequest) {
             if (!uRequest) {
                 throw new Error(`No request with id ${id}`);
             }
-            let expectatorIds = uRequest.expectatorIds || [];
-            return expectatorIds;
+            let expectations = uRequest.expectations || [];
+            return expectations;
         } catch (err) {
             throw err
         }
@@ -30,7 +30,7 @@ module.exports = function(URequest) {
                 throw new Error(`No user with id ${expectator.id}`);
                 return;
             }
-            let index = _.findIndex(uRequest.expectators, function(o) {
+            let index = _.findIndex(uRequest.expectations, function(o) {
                 return o.id == expectator.id;
             })
             if (index < 0) {
@@ -44,16 +44,16 @@ module.exports = function(URequest) {
                 } else {
                     uUser.points = finalPoints;
                 }
-                uRequest.expectators.push(expectator);
+                uRequest.expectations.push(expectator);
                 await uRequest.save();
                 await uUser.save();
                 return {
                     isExpecting: true
                 };
             } else {
-                let oldExpectator = uRequest.expectators[index];
+                let oldExpectator = uRequest.expectations[index];
                 let addPoints = oldExpectator.points;
-                uRequest.expectators.splice(index, 1);
+                uRequest.expectations.splice(index, 1);
                 uUser.points = uUser.points + addPoints;
                 await uRequest.save();
                 await uUser.save();
@@ -77,7 +77,7 @@ module.exports = function(URequest) {
         },
         http: {
             verb: 'get',
-            path: '/:id/expectators'
+            path: '/:id/expectations'
         }
     });
     URequest.remoteMethod('addExpectator', {
@@ -99,7 +99,7 @@ module.exports = function(URequest) {
         },
         http: {
             verb: 'post',
-            path: '/:id/expectators'
+            path: '/:id/expectations'
         }
     });
 };
