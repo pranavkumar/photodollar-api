@@ -6,7 +6,20 @@
   "options": {
     "validateUpsert": true
   },
-  "properties": {},
+  "properties": {
+    "UUserId":{
+      "type":"string",
+      "default":null
+    },
+    "normalizedMobile":{
+      "type":"number",
+      "required":true,
+      "default":0
+    },
+    "remoteId":{
+      "type":"string"
+    }
+  },
   "validations": [],
   "relations": {},
   "acls": [],
