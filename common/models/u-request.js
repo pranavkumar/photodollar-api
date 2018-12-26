@@ -14,9 +14,33 @@ module.exports = function(URequest) {
             throw err
         }
     }
+    URequest.addForward = async (id, forward) => {
+        try {
+            let uRequest = await URequest.findById(id);
+            if (!uRequest) {
+                throw new Error(`No request with id ${id}`);
+                return;
+            }
+            let existingForwards = uRequest.forwards;
+
+            let index = _.findIndex(existingForwards, function(existingForward) {
+                return (existingForward.forwarderId == forward.forwarderId && existingForward.contactId == forward.contactId)
+            })
+            if (index < 0) {
+                existingForwards.push(forward);
+            } else {
+                console.log(`forward exists`);
+            }
+            
+            await uRequest.save();
+            return true;
+
+        } catch (err) {
+            throw err;
+        }
+    }
     URequest.addExpectator = async (id, expectator) => {
         try {
-            
             let uRequest = await URequest.findById(id);
             if (!uRequest) {
                 throw new Error(`No request with id ${id}`);
@@ -100,6 +124,28 @@ module.exports = function(URequest) {
         http: {
             verb: 'post',
             path: '/:id/expectations'
+        }
+    });
+    URequest.remoteMethod('addForward', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: "forwards",
+            type: "object",
+            http: {
+                source: "body"
+            },
+            required: true
+        }],
+        returns: {
+            arg: 'result',
+            type: 'array',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/forwards'
         }
     });
 };

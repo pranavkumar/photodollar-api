@@ -41,13 +41,31 @@ module.exports = function(UUser) {
             throw err;
         }
     }
-    UUser.getForwardables = async (id) => {
+    UUser.getForwardables = async (id, uRequestId) => {
         try {
             let uUser = await UUser.findById(id);
             let contacts = await uUser.contacts.find({});
+            let uRequest = await app.models.URequest.findById(uRequestId);
+            // console.log(uRequest);
+            if (!uRequest) {
+                throw new Error(`request with id ${uRequestId} not found`);
+            }
+            let forwards = uRequest.forwards;
+            // console.log(`forwards count ${forwards.length}`);
             let forwardables = _.map(contacts, (contact) => {
                 return _.pick(contact, ['name', 'id', 'UUserId', 'normalizedMobile'])
             });
+            forwardables = _.map(forwardables, function(forwardable) {
+                let index = _.findIndex(forwards, function(forward) {
+                    return (forward.forwarderId == id && forward.contactId == forwardable.id);
+                })
+                if (index >= 0) {
+                    forwardable.isForwarded = true;
+                } else {
+                    forwardable.isForwarded = false;
+                }
+                return forwardable;
+            })
             return forwardables;
         } catch (err) {
             throw err
@@ -57,6 +75,9 @@ module.exports = function(UUser) {
         accepts: [{
             arg: 'id',
             type: 'string'
+        }, {
+            arg: "uRequestId",
+            type: "string"
         }],
         returns: {
             arg: 'result',
