@@ -45,10 +45,9 @@ module.exports = function(UUser) {
         try {
             let uUser = await UUser.findById(id);
             let contacts = await uUser.contacts.find({});
-            let forwardables = _.map(contacts,(contact)=>{
-                return _.pick(contact,['name','id','UUserId','normalizedMobile'])
+            let forwardables = _.map(contacts, (contact) => {
+                return _.pick(contact, ['name', 'id', 'UUserId', 'normalizedMobile'])
             });
-
             return forwardables;
         } catch (err) {
             throw err
@@ -62,7 +61,7 @@ module.exports = function(UUser) {
         returns: {
             arg: 'result',
             type: 'array',
-            root:true
+            root: true
         },
         http: {
             verb: 'get',
