@@ -18,7 +18,7 @@
       "type": [
         "string"
       ],
-      "required": true
+      "required": false
     },
     "expectations":{
       "type": "array",
