@@ -1,7 +1,29 @@
 'use strict';
 var app = require("../../server/server");
 var _ = require("lodash");
-module.exports = function(UUser) {
+const Nexmo = require('nexmo');
+const request = require("request");
+
+module.exports = function (UUser) {
+    UUser.sendSMS = function () {
+        // const nexmo = new Nexmo({
+        //     apiKey: "b5780072",
+        //     apiSecret: "xL4v0cjsOdWjXSTZ"
+
+        //   }, {});
+        //   nexmo.message.sendSms("KYASCN", "918050598432", "test message using nexmo", {}, function(err, data){
+        //       console.log(err);
+        //       console.log(data);
+        //   });
+        request.post({
+            url: "https://api.textlocal.in/send/",
+            formData: { apiKey: "8xc7Od5MLxc-6SIfpKtYlSfU8awlsAXTtR9PIBmA0W", numbers: [8050598432].join(","), sender: "TXTLCL", message: "hellO WORLD2" }
+        },function(err, res, body){
+            console.log(err);
+            console.log(body);
+        });
+    }
+    UUser.sendSMS();
     UUser.getFeed = async (id) => {
         try {
             let uUser = await UUser.findById(id);
@@ -12,7 +34,7 @@ module.exports = function(UUser) {
                 include: ["UResponses", "UUser"]
             });
             requests = _.map(requests, (request) => {
-                let index = _.findIndex(request.expectations, function(o) {
+                let index = _.findIndex(request.expectations, function (o) {
                     return o.id == id;
                 })
                 if (index >= 0) {
@@ -55,8 +77,8 @@ module.exports = function(UUser) {
             let forwardables = _.map(contacts, (contact) => {
                 return _.pick(contact, ['name', 'id', 'UUserId', 'normalizedMobile'])
             });
-            forwardables = _.map(forwardables, function(forwardable) {
-                let index = _.findIndex(forwards, function(forward) {
+            forwardables = _.map(forwardables, function (forwardable) {
+                let index = _.findIndex(forwards, function (forward) {
                     return (forward.forwarderId == id && forward.contactId == forwardable.id);
                 })
                 if (index >= 0) {
