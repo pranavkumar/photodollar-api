@@ -2,28 +2,79 @@
 var app = require("../../server/server");
 var _ = require("lodash");
 const Nexmo = require('nexmo');
-const request = require("request");
+const request = require("request-promise");
+const axios = require("axios");
+const FormData = require('form-data');
 
 module.exports = function (UUser) {
-    UUser.sendSMS = function () {
-        // const nexmo = new Nexmo({
-        //     apiKey: "b5780072",
-        //     apiSecret: "xL4v0cjsOdWjXSTZ"
 
-        //   }, {});
-        //   nexmo.message.sendSms("KYASCN", "918050598432", "test message using nexmo", {}, function(err, data){
-        //       console.log(err);
-        //       console.log(data);
-        //   });
-        request.post({
-            url: "https://api.textlocal.in/send/",
-            formData: { apiKey: "8xc7Od5MLxc-6SIfpKtYlSfU8awlsAXTtR9PIBmA0W", numbers: [8050598432].join(","), sender: "TXTLCL", message: "hellO WORLD2" }
-        },function(err, res, body){
-            console.log(err);
-            console.log(body);
-        });
+    UUser.signIn = async function (type, user) {
+        // console.log(type);
+        // console.log(user);
+        try {
+            let uUser = null;
+            switch (type) {
+                case 'facebook':
+                    uUser = await UUser.findOne({ where: { facebookId: user.id } });
+                    break;
+                case 'google':
+                    uUser = await UUser.findOne({ where: { googleId: user.id } });
+                    break;
+                case 'twitter':
+                    uUser = await UUser.findOne({ where: { twitterId: user.id } });
+                    break;
+            }
+
+            if (!uUser) {
+                let _newUser = {};
+                _newUser.name = user.name;
+                if (user.email) {
+                    _newUser.email = user.email;
+                }
+                switch (type) {
+                    case "facebook":
+                        _newUser.facebook = user;
+                        _newUser.facebookId = user.id;
+                        break;
+                    case "twitter":
+                        _newUser.twitter = user;
+                        _newUser.twitterId = user.id;
+                        break;
+                    case "google":
+                        _newUser.google = user;
+                        _newUser.googleId = user.id;
+                        break;
+                }
+                let newUser = await UUser.create(_newUser);
+                return newUser;
+            } else {
+                console.log();
+                return uUser;
+            }
+
+        } catch (err) {
+            throw err;
+        }
     }
-    UUser.sendSMS();
+    UUser.remoteMethod('signIn', {
+        accepts: [{
+            arg: 'type',
+            type: 'string'
+        }, {
+            arg: "user",
+            type: "object"
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'get',
+            path: '/signin'
+        }
+    });
+
     UUser.getFeed = async (id) => {
         try {
             let uUser = await UUser.findById(id);

@@ -12,25 +12,43 @@
   "properties": {
     "firstname": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "lastname": {
       "type": "string",
-      "required": true
+      "required": false
+    },
+    "name":{
+      "type":"string"
     },
     "mobile": {
       "type": "number",
-      "required": true
+      "required": false
     },
     "mobileCode": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "country": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "profileImage":{
+      "type":"object"
+    },
+    "facebookId":{
+      "type":"string"
+    },
+    "googleId":{
+      "type":"string"
+    },
+    "twitterId":{
+      "type":"string"
+    },
+    "facebook":{
+      "type":"object"
+    },
+    "google":{
       "type":"object"
     },
     "points":{
