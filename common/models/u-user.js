@@ -5,6 +5,8 @@ const Nexmo = require('nexmo');
 const request = require("request-promise");
 const axios = require("axios");
 const FormData = require('form-data');
+var jwt = require('jsonwebtoken');
+var bcrypt = require('bcryptjs');
 
 module.exports = function (UUser) {
 
@@ -23,6 +25,8 @@ module.exports = function (UUser) {
                 case 'twitter':
                     uUser = await UUser.findOne({ where: { twitterId: user.id } });
                     break;
+                default:
+                    throw new Error("Unknown signin type");
             }
 
             if (!uUser) {
@@ -44,12 +48,15 @@ module.exports = function (UUser) {
                         _newUser.google = user;
                         _newUser.googleId = user.id;
                         break;
+                    default:
+                        throw new Error("Unknown signin type");
                 }
                 let newUser = await UUser.create(_newUser);
-                return newUser;
+
+                return { uUser: newUser, token: jwt.sign({ id: newUser.id }, "lamalama", { expiresIn: 24 * 2600 * 30 }) };
             } else {
-                console.log();
-                return uUser;
+
+                return { uUser: uUser, token: jwt.sign({ id: uUser.id }, "lamalama", { expiresIn: 24 * 2600 * 30 }) };;
             }
 
         } catch (err) {
