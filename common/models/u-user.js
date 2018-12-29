@@ -52,7 +52,13 @@ module.exports = function (UUser) {
                 }
                 uUser = await UUser.create(newUser);
             }
-            return { uUser: uUser, token: jwt.sign({ id: uUser.id }, "lamalama", { expiresIn: 24 * 2600 * 30 }) };;
+            return {
+                uUser: uUser, token: jwt.sign({
+                    id: uUser.id,
+                    realm: "UUser",
+                    time: new Date().toISOString
+                }, "lamalama", { expiresIn: 24 * 2600 * 30 })
+            };;
 
         } catch (err) {
             throw err;
