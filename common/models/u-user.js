@@ -11,8 +11,7 @@ var bcrypt = require('bcryptjs');
 module.exports = function (UUser) {
 
     UUser.signIn = async function (type, user) {
-        // console.log(type);
-        // console.log(user);
+
         try {
             let uUser = null;
             switch (type) {
@@ -30,34 +29,30 @@ module.exports = function (UUser) {
             }
 
             if (!uUser) {
-                let _newUser = {};
-                _newUser.name = user.name;
+                let newUser = {};
+                newUser.name = user.name;
                 if (user.email) {
-                    _newUser.email = user.email;
+                    newUser.email = user.email;
                 }
                 switch (type) {
                     case "facebook":
-                        _newUser.facebook = user;
-                        _newUser.facebookId = user.id;
+                        newUser.facebook = user;
+                        newUser.facebookId = user.id;
                         break;
                     case "twitter":
-                        _newUser.twitter = user;
-                        _newUser.twitterId = user.id;
+                        newUser.twitter = user;
+                        newUser.twitterId = user.id;
                         break;
                     case "google":
-                        _newUser.google = user;
-                        _newUser.googleId = user.id;
+                        newUser.google = user;
+                        newUser.googleId = user.id;
                         break;
                     default:
                         throw new Error("Unknown signin type");
                 }
-                let newUser = await UUser.create(_newUser);
-
-                return { uUser: newUser, token: jwt.sign({ id: newUser.id }, "lamalama", { expiresIn: 24 * 2600 * 30 }) };
-            } else {
-
-                return { uUser: uUser, token: jwt.sign({ id: uUser.id }, "lamalama", { expiresIn: 24 * 2600 * 30 }) };;
+                uUser = await UUser.create(newUser);
             }
+            return { uUser: uUser, token: jwt.sign({ id: uUser.id }, "lamalama", { expiresIn: 24 * 2600 * 30 }) };;
 
         } catch (err) {
             throw err;
