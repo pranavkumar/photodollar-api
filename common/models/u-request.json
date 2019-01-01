@@ -31,6 +31,10 @@
     "hiddenBy":{
       "type":"array",
       "default":[]
+    },
+    "flaggedBy":{
+      "type":"array",
+      "default":[]
     }
   },
   "validations": [],

@@ -96,6 +96,11 @@ module.exports = function (URequest) {
                 throw new Error(`No request with id ${id}`);
             }
 
+            let uUser = await app.models.UUser.findById(uUserId);
+            if (!uUser) {
+                throw new Error(`No user with id ${uUserId}`);
+            }
+
             let index = uRequest.hiddenBy.indexOf(uUserId);
             console.log(index);
             let isHidden = true;
@@ -111,6 +116,59 @@ module.exports = function (URequest) {
             throw err;
         }
     }
+
+    URequest.flagRequest = async function (id, flagger) {
+        try {
+            let uRequest = await URequest.findById(id);
+            if (!uRequest) {
+                throw new Error(`No request with id ${id}`);
+            }
+            let uUser = await app.models.UUser.findById(flagger.id);
+            if (!uUser) {
+                throw new Error(`No user with id ${flagger.id}`);
+            }
+
+            let index = _.findIndex(uRequest.flaggedBy, function (o) {
+                return o.id == flagger.id;
+            })
+
+            if (index < 0) {
+                uRequest.flaggedBy.push(flagger);
+            } else {
+                uRequest.flaggedBy.splice(index, 1);
+            }
+
+
+
+
+            await uRequest.save();
+            return { isFlagged: (index < 0) }
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    URequest.remoteMethod('flagRequest', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: 'flagger',
+            type: 'object',
+            http: {
+                source: 'body'
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/flag'
+        }
+    });
 
     URequest.remoteMethod('toggleHide', {
         accepts: [{

@@ -107,6 +107,14 @@ module.exports = function (UUser) {
                 } else {
                     request.isHidden = true;
                 }
+                let isFlaggedIndex = _.findIndex(request.flaggedBy, function (o) {
+                    return o.id == id;
+                });
+                if (isFlaggedIndex >= 0) {
+                    request.isFlagged = true;
+                } else {
+                    request.isFlagged = false;
+                }
                 return request;
             })
             return requests;
