@@ -1,7 +1,7 @@
 'use strict';
 const _ = require("lodash");
 var app = require("../../server/server");
-module.exports = function(URequest) {
+module.exports = function (URequest) {
     URequest.getExpectators = async (id) => {
         try {
             let uRequest = await URequest.findById(id);
@@ -23,7 +23,7 @@ module.exports = function(URequest) {
             }
             let existingForwards = uRequest.forwards;
 
-            let index = _.findIndex(existingForwards, function(existingForward) {
+            let index = _.findIndex(existingForwards, function (existingForward) {
                 return (existingForward.forwarderId == forward.forwarderId && existingForward.contactId == forward.contactId)
             })
             if (index < 0) {
@@ -31,7 +31,7 @@ module.exports = function(URequest) {
             } else {
                 console.log(`forward exists`);
             }
-            
+
             await uRequest.save();
             return true;
 
@@ -54,7 +54,7 @@ module.exports = function(URequest) {
                 throw new Error(`No user with id ${expectator.id}`);
                 return;
             }
-            let index = _.findIndex(uRequest.expectations, function(o) {
+            let index = _.findIndex(uRequest.expectations, function (o) {
                 return o.id == expectator.id;
             })
             if (index < 0) {
@@ -89,6 +89,49 @@ module.exports = function(URequest) {
             throw err;
         }
     }
+    URequest.toggleHide = async function (id, uUserId) {
+        try {
+            let uRequest = await URequest.findById(id);
+            if (!uRequest) {
+                throw new Error(`No request with id ${id}`);
+            }
+
+            let index = uRequest.hiddenBy.indexOf(uUserId);
+            console.log(index);
+            let isHidden = true;
+            if (index < 0) {
+                uRequest.hiddenBy.push(uUserId);
+            } else {
+                uRequest.hiddenBy.splice(index, 1);
+                isHidden = false;
+            }
+            await uRequest.save();
+            return { isHidden: isHidden }
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    URequest.remoteMethod('toggleHide', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: 'uUserId',
+            type: 'string'
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'get',
+            path: '/:id/toggleHide/:uUserId'
+        }
+    });
+
+
     URequest.remoteMethod('getExpectators', {
         accepts: [{
             arg: 'id',

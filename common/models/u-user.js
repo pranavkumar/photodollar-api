@@ -101,6 +101,12 @@ module.exports = function (UUser) {
                 } else {
                     request.isExpecting = false;
                 }
+                let isHiddenIndex = request.hiddenBy.indexOf(id);
+                if (isHiddenIndex < 0) {
+                    request.isHidden = false;
+                } else {
+                    request.isHidden = true;
+                }
                 return request;
             })
             return requests;
