@@ -102,7 +102,7 @@ module.exports = function (URequest) {
             }
 
             let index = uRequest.hiddenBy.indexOf(uUserId);
-            console.log(index);
+            
             let isHidden = true;
             if (index < 0) {
                 uRequest.hiddenBy.push(uUserId);
@@ -137,10 +137,6 @@ module.exports = function (URequest) {
             } else {
                 uRequest.flaggedBy.splice(index, 1);
             }
-
-
-
-
             await uRequest.save();
             return { isFlagged: (index < 0) }
         } catch (err) {

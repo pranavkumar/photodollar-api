@@ -93,10 +93,10 @@ module.exports = function (UUser) {
                 include: ["UResponses", "UUser"]
             });
             requests = _.map(requests, (request) => {
-                let index = _.findIndex(request.expectations, function (o) {
+                let expectationsIndex = _.findIndex(request.expectations, function (o) {
                     return o.id == id;
                 })
-                if (index >= 0) {
+                if (expectationsIndex >= 0) {
                     request.isExpecting = true;
                 } else {
                     request.isExpecting = false;
