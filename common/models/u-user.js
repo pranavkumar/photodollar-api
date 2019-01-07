@@ -90,7 +90,8 @@ module.exports = function (UUser) {
                 throw new Error(`UUserId ${id} does not exist.`);
             }
             let requests = await app.models.URequest.find({
-                include: ["UResponses", "UUser"]
+                include: ["UResponses", "UUser"],
+                order:'createdAt DESC'
             });
             requests = _.map(requests, (request) => {
                 let expectationsIndex = _.findIndex(request.expectations, function (o) {
