@@ -7,6 +7,7 @@ const axios = require("axios");
 const FormData = require('form-data');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
+var loopback = require('loopback');
 
 module.exports = function (UUser) {
 
@@ -83,6 +84,22 @@ module.exports = function (UUser) {
         }
     });
 
+    UUser.testGeo = function () {
+        var userLocation = new loopback.GeoPoint({
+            lat: 28.7041,
+            lng: 77.1025
+        });
+        app.models.URequest.find({ where: { _from: { near: userLocation, maxDistance: 1500, unit: 'kilometers' } } }, function (err, data) {
+            console.log(err);
+            console.log(data);
+        })
+    }
+
+    // setTimeout(function () {
+    //     UUser.testGeo();
+    // }, 3000);
+
+
     UUser.getFeed = async (id) => {
         try {
             let uUser = await UUser.findById(id);
@@ -90,8 +107,8 @@ module.exports = function (UUser) {
                 throw new Error(`UUserId ${id} does not exist.`);
             }
             let requests = await app.models.URequest.find({
-                include: [{"UResponses":"user"}, "UUser"],
-                order:'createdAt DESC'
+                include: [{ "UResponses": "user" }, "UUser"],
+                order: 'createdAt DESC'
             });
             requests = _.map(requests, (request) => {
                 let expectationsIndex = _.findIndex(request.expectations, function (o) {
@@ -167,6 +184,55 @@ module.exports = function (UUser) {
             throw err
         }
     }
+
+    UUser.addNotificationTokens = async function (id, tokenObj) {
+        console.log(`${id} ${JSON.stringify(tokenObj)}`);
+        try {
+            if (!tokenObj || !tokenObj.token || !_.isString(tokenObj.token)) {
+                throw new Error(`Invalid tokenObj ${JSON.stringify(tokenObj)}`);
+            }
+            let uUser = await UUser.findById(id);
+            if (!uUser) {
+                throw new Error(`No user with id ${id}`);
+            }
+            tokenObj.createdAt = new Date().toISOString();
+            let index = _.findIndex(uUser.notificationTokens, function (o) {
+                return o.token == tokenObj.token;
+            })
+            if (index < 0) {
+                uUser.notificationTokens.push(tokenObj);
+            }
+            await uUser.save();
+            return { isAdded: (index < 0) };
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+    UUser.remoteMethod('addNotificationTokens', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: "tokenObj",
+            type: "object",
+            http: {
+                source: 'body'
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/notificationTokens'
+        }
+    });
+
+
     UUser.remoteMethod('getForwardables', {
         accepts: [{
             arg: 'id',

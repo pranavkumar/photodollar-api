@@ -58,6 +58,10 @@
     "lastContactSync":{
       "type":"date",
       "default":null
+    },
+    "notificationTokens":{
+      "type":"array",
+      "default":[]
     }
   },
   "validations": [],
