@@ -70,6 +70,11 @@
       "type":"hasMany",
       "model":"UContact",
       "foreignKey":"sourceId"
+    },
+    "defaultLocation":{
+      "type": "embedsOne",
+      "model": "Location",
+      "property": "defaultLocation"
     }
   },
   "acls": [],

@@ -5,6 +5,8 @@ var express = require('express');
 var app = module.exports = loopback();
 var path = require("path");
 var fileapp = express();
+var notifications = require("./services/notifications")();
+
 fileapp.use('/files/responseImages', express.static(path.resolve(__dirname, '../storage/responseImages')));
 fileapp.use('/files/userProfileImages', express.static(path.resolve(__dirname, '../storage/userProfileImages')));
 app.start = function () {
@@ -14,6 +16,7 @@ app.start = function () {
         app.emit('started');
         var baseUrl = app.get('url').replace(/\/$/, '');
         console.log('Web server listening at: %s', baseUrl);
+        notifications.init();
         if (app.get('loopback-component-explorer')) {
             var explorerPath = app.get('loopback-component-explorer').mountPath;
             console.log('Browse your REST API at %s%s', baseUrl, explorerPath);

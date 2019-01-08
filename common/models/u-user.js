@@ -8,6 +8,8 @@ const FormData = require('form-data');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var loopback = require('loopback');
+var redis = require("redis");
+var queue = redis.createClient();
 
 module.exports = function (UUser) {
 
@@ -195,12 +197,14 @@ module.exports = function (UUser) {
             if (!uUser) {
                 throw new Error(`No user with id ${id}`);
             }
-            tokenObj.createdAt = new Date().toISOString();
+            tokenObj.updatedAt = new Date().toISOString();
             let index = _.findIndex(uUser.notificationTokens, function (o) {
                 return o.token == tokenObj.token;
             })
             if (index < 0) {
                 uUser.notificationTokens.push(tokenObj);
+            } else {
+                uUser.notificationTokens[index] = tokenObj;
             }
             await uUser.save();
             return { isAdded: (index < 0) };
@@ -232,6 +236,80 @@ module.exports = function (UUser) {
         }
     });
 
+    UUser.sendNotification = async function (id, body, data) {
+        try {
+            let uUser = await UUser.findById(id);
+            let messages = [];
+            for (let notificationToken of uUser.notificationTokens) {
+
+                messages.push({
+                    to: notificationToken.token,
+                    sound: 'default',
+                    body: 'This is a test notification for Pranav',
+                    data: { withSome: 'data' },
+                });
+            }
+            if (messages.length > 0) {
+                queue.publish("user_notifications", JSON.stringify(messages));
+            }
+
+
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+    setTimeout(function () {
+        // UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", null, null);
+    }, 3000);
+
+
+    UUser.saveDeviceLocation = async function (id, location) {
+        console.log(`${id} ${JSON.stringify(location)}`);
+        try {
+            let data = await app.models.Map.geocodeReverse(location.coords.latitude, location.coords.longitude);
+
+            if (data.status == 'OK') {
+                let uUser = await UUser.findById(id);
+                if (!uUser) {
+                    throw new Error(`No user with id ${id}`);
+                }
+                uUser._defaultLocation = data.location;
+                await uUser.save();
+                return { location: data.location };
+            } else {
+                return { location: null }
+            }
+
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+
+    UUser.remoteMethod('saveDeviceLocation', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: "location",
+            type: "object",
+            http: {
+                source: "body"
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/saveDeviceLocation'
+        }
+    });
 
     UUser.remoteMethod('getForwardables', {
         accepts: [{
