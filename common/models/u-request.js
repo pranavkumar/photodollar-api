@@ -295,20 +295,22 @@ module.exports = function (URequest) {
                 console.log(targetsTo);
                 console.log(targetsLocal);
 
+                let data = { uRequestId: instance.id };
+
                 //notify local users - local request
                 await Promise.all(targetsLocal.map(async (targetLocal) => {
-                    await app.models.UUser.sendNotification(targetLocal.id, `Someone has requested for ${instance.title} in your area. Reply or Forward`, {});
+                    await app.models.UUser.sendNotification(targetLocal.id, `Someone has requested for ${instance.title} in your area. Reply or Forward`, { ...data, type: 'NEW_LOCAL_REQUEST' });
                 }));
 
                 //notify from users - outgoing request
                 await Promise.all(targetsFrom.map(async (targetFrom) => {
-                    await app.models.UUser.sendNotification(targetFrom.id, `Someone has requested for ${instance.title} in your area. Forward`, {});
+                    await app.models.UUser.sendNotification(targetFrom.id, `Someone has requested for ${instance.title} in your area. Forward`, { ...data, type: 'NEW_OUTGOING_REQUEST' });
                 }));
 
 
                 //notify to users - incoming request
                 await Promise.all(targetsTo.map(async (targetTo) => {
-                    await app.models.UUser.sendNotification(targetTo.id, `Someone has requested for ${instance.title} from your area. Reply`, {});
+                    await app.models.UUser.sendNotification(targetTo.id, `Someone has requested for ${instance.title} from your area. Reply`, { ...data, type: 'NEW_INCOMING_REQUEST' });
                 }));
 
             }

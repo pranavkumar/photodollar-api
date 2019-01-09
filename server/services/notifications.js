@@ -3,6 +3,7 @@ var redis = require("redis");
 var queue = redis.createClient();
 const { Expo } = require('expo-server-sdk');
 let expo = new Expo();
+var request = require("request");
 module.exports = function () {
     return {
         init: function () {
@@ -14,6 +15,9 @@ module.exports = function () {
                     return Expo.isExpoPushToken(notificationMessage.to);
 
                 });
+
+                
+
                 let chunks = expo.chunkPushNotifications(verifiedMessages);
                 let tickets = [];
 

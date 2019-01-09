@@ -251,15 +251,17 @@ module.exports = function (UUser) {
             if (messages.length > 0) {
                 queue.publish("user_notifications", JSON.stringify(messages));
             }
+            uUser.notifications.push({ body, data });
+            await uUser.save();
         } catch (err) {
             throw err;
         }
 
     }
 
-    // setTimeout(function () {
-    //     // UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", null, null);
-    // }, 3000);
+    setTimeout(function () {
+        UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", "random stuff", {});
+    }, 3000);
 
 
     UUser.saveDeviceLocation = async function (id, location) {

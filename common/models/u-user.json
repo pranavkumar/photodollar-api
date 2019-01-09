@@ -62,6 +62,10 @@
     "notificationTokens":{
       "type":"array",
       "default":[]
+    },
+    "notifications":{
+      "type":"array",
+      "default":[]
     }
   },
   "validations": [],
