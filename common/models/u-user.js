@@ -241,28 +241,25 @@ module.exports = function (UUser) {
             let uUser = await UUser.findById(id);
             let messages = [];
             for (let notificationToken of uUser.notificationTokens) {
-
                 messages.push({
                     to: notificationToken.token,
                     sound: 'default',
-                    body: 'This is a test notification for Pranav',
-                    data: { withSome: 'data' },
+                    body: body,
+                    data: data,
                 });
             }
             if (messages.length > 0) {
                 queue.publish("user_notifications", JSON.stringify(messages));
             }
-
-
         } catch (err) {
             throw err;
         }
 
     }
 
-    setTimeout(function () {
-        // UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", null, null);
-    }, 3000);
+    // setTimeout(function () {
+    //     // UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", null, null);
+    // }, 3000);
 
 
     UUser.saveDeviceLocation = async function (id, location) {
