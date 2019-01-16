@@ -41,9 +41,20 @@
   "relations": {
     "UUser": {
       "type": "belongsTo",
-      "model": "UUser"
+      "model": "UUser",
+      "foreignKey": "UUserId"
+    },
+    "uUser": {
+      "type": "belongsTo",
+      "model": "UUser",
+      "foreignKey": "UUserId"
     },
     "UResponses": {
+      "type": "hasMany",
+      "model": "UResponse",
+      "foreignKey": "UResponseId"
+    },
+    "uResponses": {
       "type": "hasMany",
       "model": "UResponse",
       "foreignKey": "UResponseId"

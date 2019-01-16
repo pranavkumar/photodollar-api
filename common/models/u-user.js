@@ -109,7 +109,7 @@ module.exports = function (UUser) {
                 throw new Error(`UUserId ${id} does not exist.`);
             }
             let requests = await app.models.URequest.find({
-                include: [{ "UResponses": "user" }, "UUser"],
+                include: [{ "UResponses": "user" }, "UUser", "uUser", { "uResponses": "user" }],
                 order: 'createdAt DESC'
             });
             requests = _.map(requests, (request) => {
@@ -148,10 +148,13 @@ module.exports = function (UUser) {
             if (!uUser) {
                 throw new Error(`UUserId ${id} does not exist.`);
             }
-            let res = await Promise.all(contacts.map((contact) => uUser.contacts.create(contact)));
+            let res = await Promise.all(contacts.map((contact) => app.models.UContact.findOrCreate({ where: { phone: contact.phone, sourceId: contact.sourceId } }, contact)));
             uUser.lastContactSync = new Date().toISOString();
             await uUser.save();
-            return res;
+            let syncedContacts = _.map(res,function(syncedContact){
+                return syncedContact[0];
+            });
+            return { contacts: syncedContacts, synced: true };
         } catch (err) {
             throw err;
         }
@@ -259,9 +262,9 @@ module.exports = function (UUser) {
 
     }
 
-    setTimeout(function () {
-        UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", "random stuff", {});
-    }, 3000);
+    // setTimeout(function () {
+    //     UUser.sendNotification("5c273c8a2fc0f36e4b25f3f1", "random stuff", {});
+    // }, 3000);
 
 
     UUser.saveDeviceLocation = async function (id, location) {
@@ -341,7 +344,8 @@ module.exports = function (UUser) {
         }],
         returns: {
             arg: 'result',
-            type: 'object'
+            type: 'object',
+            root: true
         },
         http: {
             verb: 'post',

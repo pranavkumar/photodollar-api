@@ -7,17 +7,14 @@
     "validateUpsert": true
   },
   "properties": {
-    "UUserId":{
-      "type":"string",
-      "default":null
-    },
-    "normalizedMobile":{
+    "normalisedMobile":{
       "type":"number",
       "required":true,
       "default":0
     },
-    "remoteId":{
-      "type":"string"
+    "phone":{
+      "type":"string",
+      "default":0
     }
   },
   "validations": [],
