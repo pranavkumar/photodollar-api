@@ -1,24 +1,15 @@
 {
-    "name": "URequest",
-    "plural": "URequests",
+    "name": "Pdrequest",
+    "plural": "pdrequests",
     "base": "PersistedModel",
     "idInjection": true,
     "options": {
         "validateUpsert": true
     },
-    "mixins": {
-        "TimeStamp": true
-    },
     "properties": {
         "title": {
             "type": "string",
             "required": true
-        },
-        "categoryIds": {
-            "type": [
-                "string"
-            ],
-            "required": false
         },
         "expectations": {
             "type": "array",
@@ -28,45 +19,35 @@
             "type": "array",
             "default": []
         },
-        "hiddenBy": {
+        "hides": {
             "type": "array",
             "default": []
         },
-        "flaggedBy": {
+        "flags": {
             "type": "array",
             "default": []
         }
     },
     "validations": [],
     "relations": {
-        "UUser": {
+        "user": {
             "type": "belongsTo",
-            "model": "UUser",
-            "foreignKey": "UUserId"
+            "model": "Pduser",
+            "foreignKey": "userId"
         },
-        "uUser": {
-            "type": "belongsTo",
-            "model": "UUser",
-            "foreignKey": "UUserId"
-        },
-        "UResponses": {
+        "responses": {
             "type": "hasMany",
-            "model": "UResponse",
-            "foreignKey": "UResponseId"
+            "model": "Pdresponse",
+            "foreignKey": "requestId"
         },
-        "uResponses": {
-            "type": "hasMany",
-            "model": "UResponse",
-            "foreignKey": "UResponseId"
-        },
-        "from": {
+        "_from": {
             "type": "embedsOne",
-            "model": "Location",
+            "model": "Pdlocation",
             "property": "from"
         },
-        "to": {
+        "_to": {
             "type": "embedsOne",
-            "model": "Location",
+            "model": "Pdlocation",
             "property": "to"
         }
     },

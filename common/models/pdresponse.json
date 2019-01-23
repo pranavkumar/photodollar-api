@@ -1,16 +1,13 @@
 {
-    "name": "UResponse",
-    "plural": "UResponses",
+    "name": "Pdresponse",
+    "plural": "pdresponses",
     "base": "PersistedModel",
     "idInjection": true,
     "options": {
         "validateUpsert": true
     },
-    "mixins": {
-        "TimeStamp": true
-    },
     "properties": {
-        "comment": {
+        "caption": {
             "type": "string"
         },
         "image": {
@@ -21,8 +18,8 @@
     "relations": {
         "user": {
             "type": "belongsTo",
-            "model": "UUser",
-            "foreignKey": "UUserId"
+            "model": "Pduser",
+            "foreignKey": "userId"
         }
     },
     "acls": [],

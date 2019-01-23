@@ -1,14 +1,1 @@
-{
-  "name": "Storage",
-  "plural": "storage",
-  "base": "Model",
-  "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
-  "properties": {},
-  "validations": [],
-  "relations": {},
-  "acls": [],
-  "methods": {}
-}
+{"name":"Storage","plural":"storage","base":"Model","idInjection":true,"options":{"validateUpsert":true},"properties":{},"validations":[],"relations":{},"acls":[],"methods":{}}

@@ -1,6 +1,6 @@
 {
-    "name": "Location",
-    "plural": "locations",
+    "name": "Pdlocation",
+    "plural": "pdlocations",
     "base": "PersistedModel",
     "idInjection": true,
     "options": {

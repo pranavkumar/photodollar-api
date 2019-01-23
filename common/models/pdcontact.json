@@ -1,6 +1,6 @@
 {
-    "name": "UContact",
-    "plural": "UContacts",
+    "name": "Pdcontact",
+    "plural": "pdcontacts",
     "base": "PersistedModel",
     "idInjection": true,
     "options": {
@@ -15,6 +15,9 @@
         "phone": {
             "type": "string",
             "default": 0
+        },
+        "name": {
+            "type": "string"
         }
     },
     "validations": [],

@@ -171,7 +171,7 @@ module.exports = function (UUser) {
             let forwards = uRequest.forwards;
             // console.log(`forwards count ${forwards.length}`);
             let forwardables = _.map(contacts, (contact) => {
-                return _.pick(contact, ['name', 'id', 'UUserId', 'normalizedMobile'])
+                return _.pick(contact, ['name', 'id', 'UUserId', 'normalizedMobile','phone'])
             });
             forwardables = _.map(forwardables, function (forwardable) {
                 let index = _.findIndex(forwards, function (forward) {
@@ -328,7 +328,7 @@ module.exports = function (UUser) {
         },
         http: {
             verb: 'get',
-            path: '/:id/forwardables'
+            path: '/:id/forwardables/:uRequestId'
         }
     });
     UUser.remoteMethod('addContacts', {
