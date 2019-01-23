@@ -101,21 +101,23 @@ module.exports = function (Pduser) {
             });
             requests = _.map(requests, (request) => {
                 let expectsIndex = _.findIndex(request.expects, function (o) {
-                    return o.id == id;
+                    return o.userId == id;
                 })
                 if (expectsIndex >= 0) {
                     request.expected = true;
                 } else {
                     request.expected = false;
                 }
-                let hidesIndex = request.hides.indexOf(id);
+                let hidesIndex =  _.findIndex(request.hides, function (o) {
+                    return o.userId == id;
+                });
                 if (hidesIndex < 0) {
                     request.hidden = false;
                 } else {
                     request.hidden = true;
                 }
                 let flagsIndex = _.findIndex(request.flags, function (o) {
-                    return o.id == id;
+                    return o.userId == id;
                 });
                 if (flagsIndex >= 0) {
                     request.flagged = true;

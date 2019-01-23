@@ -75,7 +75,7 @@ module.exports = function (Pdrequest) {
                 await pdrequest.save();
                 await pduser.save();
                 return {
-                    expects: true
+                    expected: true
                 };
             } else {
                 let oldExpect = pdrequest.expects[index];
@@ -85,36 +85,35 @@ module.exports = function (Pdrequest) {
                 await pdrequest.save();
                 await pduser.save();
                 return {
-                    expects: false
+                    expected: false
                 };
             }
         } catch (err) {
             throw err;
         }
     }
-    Pdrequest.toggleHide = async function (id, userId) {
+    Pdrequest.hideRequest = async function (id, hide) {
         try {
             let pdrequest = await Pdrequest.findById(id);
             if (!pdrequest) {
                 throw new Error(`No request with id ${id}`);
             }
-
-            let pduser = await app.models.Pduser.findById(userId);
+            let pduser = await app.models.Pduser.findById(flag.userId);
             if (!pduser) {
-                throw new Error(`No user with id ${userId}`);
+                throw new Error(`No user with id ${flag.userId}`);
             }
 
-            let index = pdrequest.hides.indexOf(userId);
+            let index = _.findIndex(pdrequest.hides, function (o) {
+                return o.userId == hide.userId;
+            })
 
-            let hides = true;
             if (index < 0) {
-                pdrequest.hides.push(userId);
+                pdrequest.hides.push(hide);
             } else {
                 pdrequest.hides.splice(index, 1);
-                hides = false;
             }
             await pdrequest.save();
-            return { hides: hides }
+            return { hidden: (index < 0) }
         } catch (err) {
             throw err;
         }
@@ -141,7 +140,7 @@ module.exports = function (Pdrequest) {
                 pdrequest.flags.splice(index, 1);
             }
             await pdrequest.save();
-            return { flags: (index < 0) }
+            return { flagged: (index < 0) }
         } catch (err) {
             throw err;
         }
@@ -152,7 +151,7 @@ module.exports = function (Pdrequest) {
             arg: 'id',
             type: 'string'
         }, {
-            arg: 'flagger',
+            arg: 'flag',
             type: 'object',
             http: {
                 source: 'body'
@@ -169,13 +168,16 @@ module.exports = function (Pdrequest) {
         }
     });
 
-    Pdrequest.remoteMethod('toggleHide', {
+    Pdrequest.remoteMethod('hideRequest', {
         accepts: [{
             arg: 'id',
             type: 'string'
         }, {
-            arg: 'userId',
-            type: 'string'
+            arg: 'hide',
+            type: 'object',
+            http:{
+                source:"body"
+            }
         }],
         returns: {
             arg: 'result',
@@ -183,7 +185,7 @@ module.exports = function (Pdrequest) {
             root: true
         },
         http: {
-            verb: 'get',
+            verb: 'post',
             path: '/:id/hides'
         }
     });
