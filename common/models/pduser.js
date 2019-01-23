@@ -152,6 +152,7 @@ module.exports = function (Pduser) {
         try {
             let pduser = await Pduser.findById(id);
             let contacts = await pduser.contacts.find({});
+            console.log(contacts.length);
             let uRequest = await app.models.Pdrequest.findById(requestId);
             // console.log(uRequest);
             if (!uRequest) {
