@@ -1,5 +1,355 @@
 'use strict';
+var app = require("../../server/server");
+var _ = require("lodash");
+const request = require("request-promise");
+const axios = require("axios");
+const FormData = require('form-data');
+var jwt = require('jsonwebtoken');
+var bcrypt = require('bcryptjs');
+var loopback = require('loopback');
+var redis = require("redis");
+var queue = redis.createClient();
 
-module.exports = function(Pduser) {
+module.exports = function (Pduser) {
+    Pduser.signIn = async function (preSignin) {
 
+        try {
+            let pduser = null;
+            switch (preSignin.type) {
+                case 'facebook':
+                    pduser = await Pduser.findOne({ where: { facebookId: preSignin.id } });
+                    break;
+                case 'google':
+                    pduser = await Pduser.findOne({ where: { googleId: preSignin.id } });
+                    break;
+                case 'twitter':
+                    pduser = await Pduser.findOne({ where: { twitterId: preSignin.id } });
+                    break;
+                default:
+                    throw new Error("Unknown signin type");
+            }
+
+            if (!pduser) {
+                let newUser = {};
+                newUser.name = preSignin.name;
+                if (preSignin.email) {
+                    newUser.email = preSignin.email;
+                }
+                switch (preSignin.type) {
+                    case "facebook":
+                        newUser.facebook = preSignin;
+                        newUser.facebookId = preSignin.id;
+                        break;
+                    case "twitter":
+                        newUser.twitter = preSignin;
+                        newUser.twitterId = preSignin.id;
+                        break;
+                    case "google":
+                        newUser.google = preSignin;
+                        newUser.googleId = preSignin.id;
+                        break;
+                    default:
+                        throw new Error("Unknown signin type");
+                }
+                pduser = await Pduser.create(newUser);
+            }
+
+            let retObj = {
+                user: pduser, token: jwt.sign({
+                    id: pduser.id,
+                    realm: "Pduser",
+                    time: new Date().toISOString
+                }, "lamalama", { expiresIn: 24 * 2600 * 30 })
+            };
+            console.log(retObj);
+            return retObj;
+
+        } catch (err) {
+            throw err;
+        }
+    }
+    Pduser.remoteMethod('signIn', {
+        accepts: [{
+            arg: "preSignin",
+            type: "object",
+            http: {
+                source: "body"
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/signin'
+        }
+    });
+
+
+
+    Pduser.getFeed = async (id) => {
+        try {
+            let pduser = await Pduser.findById(id);
+            if (!pduser) {
+                throw new Error(`PduserId ${id} does not exist.`);
+            }
+            let requests = await app.models.Pdrequest.find({
+                include: [{ "responses": "user" }, "user"],
+                order: 'createdAt DESC'
+            });
+            requests = _.map(requests, (request) => {
+                let expectsIndex = _.findIndex(request.expects, function (o) {
+                    return o.id == id;
+                })
+                if (expectsIndex >= 0) {
+                    request.expected = true;
+                } else {
+                    request.expected = false;
+                }
+                let hidesIndex = request.hides.indexOf(id);
+                if (hidesIndex < 0) {
+                    request.hidden = false;
+                } else {
+                    request.hidden = true;
+                }
+                let flagsIndex = _.findIndex(request.flags, function (o) {
+                    return o.id == id;
+                });
+                if (flagsIndex >= 0) {
+                    request.flagged = true;
+                } else {
+                    request.flagged = false;
+                }
+                return request;
+            })
+            return requests;
+        } catch (err) {
+            throw err;
+        }
+    }
+    Pduser.addContacts = async (id, contacts) => {
+        try {
+            let pduser = await Pduser.findById(id);
+            if (!pduser) {
+                throw new Error(`PduserId ${id} does not exist.`);
+            }
+            let res = await Promise.all(contacts.map((contact) => app.models.Pdcontact.findOrCreate({ where: { phone: contact.phone, userId: contact.userId } }, contact)));
+            pduser.lastContactSync = new Date().toISOString();
+            await pduser.save();
+            let syncedContacts = _.map(res, function (syncedContact) {
+                return syncedContact[0];
+            });
+            return { contacts: syncedContacts, synced: true };
+        } catch (err) {
+            throw err;
+        }
+    }
+    Pduser.getForwardables = async (id, requestId) => {
+        try {
+            let pduser = await Pduser.findById(id);
+            let contacts = await pduser.contacts.find({});
+            let uRequest = await app.models.Pdrequest.findById(requestId);
+            // console.log(uRequest);
+            if (!uRequest) {
+                throw new Error(`request with id ${requestId} not found`);
+            }
+            let forwards = uRequest.forwards;
+            // console.log(`forwards count ${forwards.length}`);
+            let forwardables = _.map(contacts, (contact) => {
+                return _.pick(contact, ['name', 'id', 'PduserId', 'normalizedMobile', 'phone'])
+            });
+            forwardables = _.map(forwardables, function (forwardable) {
+                let index = _.findIndex(forwards, function (forward) {
+                    return (forward.forwarderId == id && forward.contactId == forwardable.id);
+                })
+                if (index >= 0) {
+                    forwardable.isForwarded = true;
+                } else {
+                    forwardable.isForwarded = false;
+                }
+                return forwardable;
+            })
+            return forwardables;
+        } catch (err) {
+            throw err
+        }
+    }
+
+    Pduser.addNotificationTokens = async function (id, tokenObj) {
+        console.log(`${id} ${JSON.stringify(tokenObj)}`);
+        try {
+            if (!tokenObj || !tokenObj.token || !_.isString(tokenObj.token)) {
+                throw new Error(`Invalid tokenObj ${JSON.stringify(tokenObj)}`);
+            }
+            let pduser = await Pduser.findById(id);
+            if (!pduser) {
+                throw new Error(`No user with id ${id}`);
+            }
+            tokenObj.updatedAt = new Date().toISOString();
+            let index = _.findIndex(pduser.notificationTokens, function (o) {
+                return o.token == tokenObj.token;
+            })
+            if (index < 0) {
+                pduser.notificationTokens.push(tokenObj);
+            } else {
+                pduser.notificationTokens[index] = tokenObj;
+            }
+            await pduser.save();
+            return { isAdded: (index < 0) };
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+    Pduser.remoteMethod('addNotificationTokens', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: "tokenObj",
+            type: "object",
+            http: {
+                source: 'body'
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/notificationTokens'
+        }
+    });
+
+    Pduser.sendNotification = async function (id, body, data) {
+        try {
+            let pduser = await Pduser.findById(id);
+            let messages = [];
+            for (let notificationToken of pduser.notificationTokens) {
+                messages.push({
+                    to: notificationToken.token,
+                    sound: 'default',
+                    body: body,
+                    data: data,
+                });
+            }
+            if (messages.length > 0) {
+                queue.publish("user_notifications", JSON.stringify(messages));
+            }
+            pduser.notifications.push({ body, data });
+            await pduser.save();
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+
+
+
+    Pduser.saveDeviceLocation = async function (id, deviceLocation) {
+        console.log(`${id} ${JSON.stringify(deviceLocation)}`);
+        try {
+            let data = await app.models.Map.geocodeReverse(deviceLocation.coords.latitude, deviceLocation.coords.longitude);
+
+            if (data.status == 'OK') {
+                let pduser = await Pduser.findById(id);
+                if (!pduser) {
+                    throw new Error(`No user with id ${id}`);
+                }
+                pduser.defaultLocation = data.location;
+                await pduser.save();
+                return { location: data.location };
+            } else {
+                return { location: null }
+            }
+
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+
+    Pduser.remoteMethod('saveDeviceLocation', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: "location",
+            type: "object",
+            http: {
+                source: "body"
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/saveDeviceLocation'
+        }
+    });
+
+    Pduser.remoteMethod('getForwardables', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: "requestId",
+            type: "string"
+        }],
+        returns: {
+            arg: 'result',
+            type: 'array',
+            root: true
+        },
+        http: {
+            verb: 'get',
+            path: '/:id/forwardables/:requestId'
+        }
+    });
+    Pduser.remoteMethod('addContacts', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }, {
+            arg: 'contacts',
+            type: 'array',
+            http: {
+                source: "body"
+            }
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'post',
+            path: '/:id/contacts/multi'
+        }
+    });
+    Pduser.remoteMethod('getFeed', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }],
+        returns: {
+            arg: 'result',
+            type: 'array',
+            root: true
+        },
+        http: {
+            verb: 'get',
+            path: '/:id/feed'
+        }
+    });
 };
