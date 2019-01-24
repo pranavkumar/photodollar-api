@@ -52,5 +52,8 @@
         }
     },
     "acls": [],
-    "methods": {}
+    "methods": {},
+    "mixins": {
+        "TimeStamp" : true
+      }
 }
