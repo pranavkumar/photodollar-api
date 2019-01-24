@@ -131,6 +131,7 @@ module.exports = function (Pduser) {
             throw err;
         }
     }
+    
     Pduser.addContacts = async (id, contacts) => {
         try {
             let pduser = await Pduser.findById(id);

@@ -1,6 +1,7 @@
 var uniqid = require('uniqid');
 module.exports = function(app) {
     app.dataSources.storage.connector.getFilename = function(file, req, res) {
+        
         var pattern = /^image\/.+$/;
         var value = pattern.test(file.type);
         if (value) {
