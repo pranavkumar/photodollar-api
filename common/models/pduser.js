@@ -97,9 +97,11 @@ module.exports = function (Pduser) {
                 throw new Error(`PduserId ${id} does not exist.`);
             }
             // { createdAt: { lt: moment().subtract(3, 'hours').toDate() } }
+            let con1 = { createdAt: { lt: moment().subtract(3, 'hours').toDate() } };
+            let con2 = { responsesCount: { gte: 10 } };
             let requests = await app.models.Pdrequest.find({
-                where: { createdAt: { lt: moment().subtract(3, 'hours').toDate() } },
-                include: [{ "relation": "responses",scope:{include:["user"] }}, "user"],
+                where: { or: [con1, con2] },
+                include: [{ "relation": "responses", scope: { include: ["user"] } }, "user"],
                 order: 'createdAt DESC'
             });
             requests = _.map(requests, (request) => {
