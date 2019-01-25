@@ -9,6 +9,7 @@ var bcrypt = require('bcryptjs');
 var loopback = require('loopback');
 var redis = require("redis");
 var queue = redis.createClient();
+var moment = require("moment");
 
 module.exports = function (Pduser) {
     Pduser.signIn = async function (preSignin) {
@@ -95,8 +96,10 @@ module.exports = function (Pduser) {
             if (!pduser) {
                 throw new Error(`PduserId ${id} does not exist.`);
             }
+            // { createdAt: { lt: moment().subtract(3, 'hours').toDate() } }
             let requests = await app.models.Pdrequest.find({
-                include: [{ "responses": "user" }, "user"],
+                where: { createdAt: { lt: moment().subtract(3, 'hours').toDate() } },
+                include: [{ "relation": "responses",scope:{include:["user"] }}, "user"],
                 order: 'createdAt DESC'
             });
             requests = _.map(requests, (request) => {
@@ -108,7 +111,7 @@ module.exports = function (Pduser) {
                 } else {
                     request.expected = false;
                 }
-                let hidesIndex =  _.findIndex(request.hides, function (o) {
+                let hidesIndex = _.findIndex(request.hides, function (o) {
                     return o.userId == id;
                 });
                 if (hidesIndex < 0) {
@@ -131,7 +134,7 @@ module.exports = function (Pduser) {
             throw err;
         }
     }
-    
+
     Pduser.addContacts = async (id, contacts) => {
         try {
             let pduser = await Pduser.findById(id);

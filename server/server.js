@@ -12,7 +12,7 @@ fileapp.use('/files/userProfileImages', express.static(path.resolve(__dirname, '
 app.start = function () {
     fileapp.listen(5500);
     // start the web server
-    return app.listen(function () {
+    return app.listen(async function () {
         app.emit('started');
         var baseUrl = app.get('url').replace(/\/$/, '');
         console.log('Web server listening at: %s', baseUrl);
@@ -20,6 +20,17 @@ app.start = function () {
         if (app.get('loopback-component-explorer')) {
             var explorerPath = app.get('loopback-component-explorer').mountPath;
             console.log('Browse your REST API at %s%s', baseUrl, explorerPath);
+
+            // let requests = await app.models.Pdrequest.find({});
+
+            // for (var i = 0; i < requests.length; i++) {
+            //     let request = requests[i];
+            //     let responses = await request.responses.find({});
+            //     console.log(responses.length);
+            //     request.responsesCount = responses.length;
+            //     await request.save();
+            // }
+
         }
     });
 };

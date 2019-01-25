@@ -26,6 +26,10 @@
         "flags": {
             "type": "array",
             "default": []
+        },
+        "responsesCount":{
+            "type":"number",
+            "default":0
         }
     },
     "validations": [],
