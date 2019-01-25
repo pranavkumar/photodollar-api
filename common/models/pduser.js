@@ -129,9 +129,20 @@ module.exports = function (Pduser) {
                 } else {
                     request.flagged = false;
                 }
+
                 return request;
             })
-            return requests;
+
+            let con3 = { createdAt: { gte: moment().subtract(1, 'hours').toDate() } };
+            let con4 = { responsesCount: { lt: 10 } };
+
+            let pendingRequests = await app.models.Pdrequest.find({
+                where: { and: [con3, con4] },
+                include: [{ "relation": "responses", scope: { include: ["user"] } }, "user"],
+                order: 'createdAt ASC'
+            });
+
+            return { requests: requests, pendingRequests: pendingRequests };
         } catch (err) {
             throw err;
         }
