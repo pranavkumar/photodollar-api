@@ -101,7 +101,7 @@ module.exports = function (Pduser) {
             let con2 = { responsesCount: { gte: 10 } };
             let requests = await app.models.Pdrequest.find({
                 where: { or: [con1, con2] },
-                include: [{ "relation": "responses", scope: { include: ["user"] } }, "user"],
+                include: [{ "relation": "responses", scope: { include: ["user"] } }, { "relation": "comments", scope: { include: ["user"] } }, "user"],
                 order: 'createdAt DESC'
             });
             requests = _.map(requests, (request) => {

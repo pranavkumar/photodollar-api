@@ -6,6 +6,9 @@
     "options": {
         "validateUpsert": true
     },
+    "mixins": {
+        "TimeStamp": true
+    },
     "properties": {
         "title": {
             "type": "string",
@@ -27,9 +30,9 @@
             "type": "array",
             "default": []
         },
-        "responsesCount":{
-            "type":"number",
-            "default":0
+        "responsesCount": {
+            "type": "number",
+            "default": 0
         }
     },
     "validations": [],
@@ -53,11 +56,13 @@
             "type": "embedsOne",
             "model": "Pdlocation",
             "property": "to"
+        },
+        "comments":{
+            "type":"hasMany",
+            "model":"PdrequestComment",
+            "foreignKey":"requestId"
         }
     },
     "acls": [],
-    "methods": {},
-    "mixins": {
-        "TimeStamp" : true
-      }
+    "methods": {}
 }

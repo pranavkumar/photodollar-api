@@ -1,0 +1,14 @@
+{
+    "name": "PdrequestComment",
+    "plural": "pdrequestComments",
+    "base": "Pdcomment",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
+    },
+    "properties": {},
+    "validations": [],
+    "relations": {},
+    "acls": [],
+    "methods": {}
+}

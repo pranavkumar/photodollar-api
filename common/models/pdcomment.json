@@ -1,0 +1,26 @@
+{
+    "name": "Pdcomment",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
+    },
+    "properties": {
+        "body": {
+            "type": "string",
+            "required": true
+        }
+    },
+    "validations": [],
+    "relations": {
+        "user":{
+            "type":"belongsTo",
+            "model":"Pduser"
+        }
+    },
+    "acls": [],
+    "methods": {},
+    "mixins": {
+        "TimeStamp": true
+    }
+}
