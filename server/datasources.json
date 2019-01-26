@@ -1,1 +1,22 @@
-{"db":{"name":"db","connector":"memory"},"mongoDs":{"host":"","port":0,"url":"","database":"photodollar-dev","password":"ea223f2ad93b3ebf2d1de9b7e256b8cb","name":"mongoDs","user":"photodollarapiclient","connector":"mongodb"},"storage":{"name":"storage","connector":"loopback-component-storage","provider":"filesystem","root":"./storage"}}
+{
+    "db": {
+        "name": "db",
+        "connector": "memory"
+    },
+    "mongoDs": {
+        "host": "",
+        "port": 0,
+        "url": "",
+        "database": "photodollar-dev",
+        "password": "ea223f2ad93b3ebf2d1de9b7e256b8cb",
+        "name": "mongoDs",
+        "user": "photodollarapiclient",
+        "connector": "mongodb"
+    },
+    "storage": {
+        "name": "storage",
+        "connector": "loopback-component-storage",
+        "provider": "filesystem",
+        "root": "./storage"
+    }
+}

@@ -97,7 +97,7 @@ module.exports = function (Pduser) {
                 throw new Error(`PduserId ${id} does not exist.`);
             }
             // { createdAt: { lt: moment().subtract(3, 'hours').toDate() } }
-            let con1 = { createdAt: { lt: moment().subtract(3, 'hours').toDate() } };
+            let con1 = { createdAt: { lt: moment().subtract(1, 'minutes').toDate() } };
             let con2 = { responsesCount: { gte: 10 } };
             let requests = await app.models.Pdrequest.find({
                 where: { or: [con1, con2] },
@@ -133,7 +133,7 @@ module.exports = function (Pduser) {
                 return request;
             })
 
-            let con3 = { createdAt: { gte: moment().subtract(1, 'hours').toDate() } };
+            let con3 = { createdAt: { gte: moment().subtract(1, 'minutes').toDate() } };
             let con4 = { responsesCount: { lt: 10 } };
 
             let pendingRequests = await app.models.Pdrequest.find({
