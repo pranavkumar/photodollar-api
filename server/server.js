@@ -28,7 +28,7 @@ app.start = function () {
 };
 app.middleware('initial', '/api/*', function logResponse(req, res, next) {
     // same code as sample # 2 
-    console.log("request request");
+    console.log(JSON.stringify(req.headers));
     next();
 });
 // Bootstrap the application, configure models, datasources and middleware.

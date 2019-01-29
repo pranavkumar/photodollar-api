@@ -397,8 +397,8 @@ module.exports = function (Pduser) {
                 console.log(`${ctx.method.name} whitelisted -- no verify`);
                 return;
             }
-            let authToken = (ctx.req.headers.authtoken);
-            console.log(authToken);
+            let {authToken} = ctx.req.headers;
+            if(!authToken) throw new Error("NO_AUTH_TOKEN");
 
 
             let { id, realm } = jwt.verify(authToken, tokenSecret);
@@ -408,14 +408,14 @@ module.exports = function (Pduser) {
                 try {
                     let verified = await Pduser.verifyToken(id, authToken);
                     if (!verified) {
-                        throw new Error("Unverified user");
+                        throw new Error("UNVERIFIED_USER");
                     }
                 } catch (error) {
-                    throw new Error("Unverified user");
+                    throw new Error("UNVERIFIED_USER");
                 }
 
             } else {
-                throw new Error("Unverified user");
+                throw new Error("UNVERIFIED_USER");
             }
 
         }

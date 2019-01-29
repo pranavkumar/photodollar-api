@@ -46,9 +46,9 @@ module.exports = function(Pdmap) {
                     let { results, status } = body;
                     if (status == 'OK') {
                         let result = results[0];
-                        console.log(result);
+                        // console.log(result);
                         let formattedAddressArr = result.formatted_address.split(",");
-                        console.log(formattedAddressArr);
+                        // console.log(formattedAddressArr);
                         let addressLine1 = `${formattedAddressArr[0]}, ${formattedAddressArr[1]}`;
                         let addressLine2 = [];
                         for (var i = 2; i < formattedAddressArr.length; i++) {
@@ -61,7 +61,7 @@ module.exports = function(Pdmap) {
                         let lng = result.geometry.location.lng;
 
                         let serializedLocation = { addressLine1, addressLine2, lat, lng, country, placeId };
-                        console.log(serializedLocation);
+                        // console.log(serializedLocation);
 
 
                         resolve({ location: serializedLocation, status });
