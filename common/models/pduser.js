@@ -11,6 +11,8 @@ var redis = require("redis");
 var queue = redis.createClient();
 var moment = require("moment");
 
+const tokenSecret = "lamalama";
+
 module.exports = function (Pduser) {
     Pduser.signIn = async function (preSignin) {
 
@@ -54,13 +56,17 @@ module.exports = function (Pduser) {
                 }
                 pduser = await Pduser.create(newUser);
             }
+            let token = jwt.sign({
+                id: pduser.id,
+                realm: "Pduser",
+                time: new Date().toISOString
+            }, tokenSecret, { expiresIn: 24 * 2600 * 30 });
+
+            pduser.authTokens.push(token);
+            await pduser.save();
 
             let retObj = {
-                user: pduser, token: jwt.sign({
-                    id: pduser.id,
-                    realm: "Pduser",
-                    time: new Date().toISOString
-                }, "lamalama", { expiresIn: 24 * 2600 * 30 })
+                user: pduser, token
             };
             console.log(retObj);
             return retObj;
@@ -370,6 +376,43 @@ module.exports = function (Pduser) {
         http: {
             verb: 'get',
             path: '/:id/feed'
+        }
+    });
+
+    Pduser.verifyToken = async function (id, token) {
+        let user = await Pduser.findById(id);
+        if (user == null) {
+            return false;
+        } else {
+            let authTokens = user.authTokens;
+            return authTokens.indexOf(token) > -1;
+        }
+    }
+
+    Pduser.beforeRemote("*", async (ctx) => {
+        
+        let authToken = (ctx.req.headers.authtoken);
+        console.log(authToken);
+        if (process.env.AUTH_ENV == "production") {
+            console.log("gonna check token");
+            let { id, realm } = jwt.verify(authToken, tokenSecret);
+
+            if (id && realm && realm == "Pduser") {
+                console.log("gonna find user");
+                    try {
+                        let verified = await Pduser.verifyToken(id, authToken);
+                    if (verified) {
+                        console.log("user verified");
+                    } else {
+                        console.log("bad user");
+                        throw new Error("Unverified user");
+                    }
+                    } catch (error) {
+                        throw new Error("Unverified user");
+                    }
+        
+            }
+
         }
     });
 };
