@@ -382,7 +382,9 @@ module.exports = function (Pduser) {
     });
 
     Pduser.verifyToken = async function (id, token) {
+        console.log(`verifying ${token}...`);
         let user = await Pduser.findById(id);
+        
         if (user == null) {
             return false;
         } else {
@@ -397,7 +399,8 @@ module.exports = function (Pduser) {
                 console.log(`${ctx.method.name} whitelisted -- no verify`);
                 return;
             }
-            let {authToken} = ctx.req.headers;
+            let {authtoken} = ctx.req.headers;
+            let authToken = authtoken;
             if(!authToken) throw new Error("NO_AUTH_TOKEN");
 
 
@@ -405,16 +408,13 @@ module.exports = function (Pduser) {
 
             if (id && realm && realm == "Pduser") {
 
-                try {
-                    let verified = await Pduser.verifyToken(id, authToken);
+                let verified = await Pduser.verifyToken(id, authToken);
                     if (!verified) {
+                        console.log("could not verify");
                         throw new Error("UNVERIFIED_USER");
                     }
-                } catch (error) {
-                    throw new Error("UNVERIFIED_USER");
-                }
-
             } else {
+                console.log("holla");
                 throw new Error("UNVERIFIED_USER");
             }
 
