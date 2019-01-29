@@ -21,4 +21,26 @@ module.exports = function (Pdresponse) {
 
     });
 
+    Pdresponse.getUserResponses = async function (userId) {
+        let responses = await Pdresponse.find({ where: { userId: userId }, order: "createdAt DESC" });
+        return responses;
+    }
+
+
+    Pdresponse.remoteMethod('getUserResponses', {
+        accepts: [{
+            arg: 'userId',
+            type: 'string'
+        }],
+        returns: {
+            arg: 'result',
+            type: 'array',
+            root: true
+        },
+        http: {
+            verb: 'get',
+            path: '/user/:userId'
+        }
+    });
+
 };

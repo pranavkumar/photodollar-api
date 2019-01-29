@@ -21,22 +21,14 @@ app.start = function () {
             var explorerPath = app.get('loopback-component-explorer').mountPath;
             console.log('Browse your REST API at %s%s', baseUrl, explorerPath);
 
-            // let requests = await app.models.Pdrequest.find({});
-
-            // for (var i = 0; i < requests.length; i++) {
-            //     let request = requests[i];
-            //     let responses = await request.responses.find({});
-            //     console.log(responses.length);
-            //     request.responsesCount = responses.length;
-            //     await request.save();
-            // }
+            
 
         }
     });
 };
 app.middleware('initial', '/api/*', function logResponse(req, res, next) {
     // same code as sample # 2 
-    console.log("ooo some request");
+    console.log("request request");
     next();
 });
 // Bootstrap the application, configure models, datasources and middleware.
