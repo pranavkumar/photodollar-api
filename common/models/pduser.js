@@ -392,10 +392,6 @@ module.exports = function (Pduser) {
     }
 
     Pduser.beforeRemote("*", async (ctx) => {
-
-
-
-
         if (process.env.AUTH_ENV == "production") {
             if (tokenNoVerfiy.indexOf(ctx.method.name) > -1) {
                 console.log(`${ctx.method.name} whitelisted -- no verify`);
@@ -403,24 +399,23 @@ module.exports = function (Pduser) {
             }
             let authToken = (ctx.req.headers.authtoken);
             console.log(authToken);
-            console.log("gonna check token");
+
 
             let { id, realm } = jwt.verify(authToken, tokenSecret);
 
             if (id && realm && realm == "Pduser") {
-                console.log("gonna find user");
+
                 try {
                     let verified = await Pduser.verifyToken(id, authToken);
-                    if (verified) {
-                        console.log("user verified");
-                    } else {
-                        console.log("bad user");
+                    if (!verified) {
                         throw new Error("Unverified user");
                     }
                 } catch (error) {
                     throw new Error("Unverified user");
                 }
 
+            } else {
+                throw new Error("Unverified user");
             }
 
         }
