@@ -43,9 +43,9 @@
             "type": "array",
             "default": []
         },
-        "authTokens":{
-            "type":"array",
-            "default":[]
+        "authTokens": {
+            "type": "array",
+            "default": []
         }
     },
     "validations": [],

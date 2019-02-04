@@ -40,6 +40,10 @@ module.exports = function (Pduser) {
                 if (preSignin.email) {
                     newUser.email = preSignin.email;
                 }
+                if(preSignin.notificationToken){
+                    newUser.notificationTokens = [];
+                    newUser.notificationTokens.push(preSignin.notificationToken);
+                }
                 switch (preSignin.type) {
                     case "facebook":
                         newUser.facebook = preSignin;
@@ -77,6 +81,9 @@ module.exports = function (Pduser) {
             throw err;
         }
     }
+
+    
+
     Pduser.remoteMethod('signIn', {
         accepts: [{
             arg: "preSignin",
@@ -105,7 +112,7 @@ module.exports = function (Pduser) {
                 throw new Error(`PduserId ${id} does not exist.`);
             }
             // { createdAt: { lt: moment().subtract(3, 'hours').toDate() } }
-            let con1 = { createdAt: { lt: moment().subtract(1, 'minutes').toDate() } };
+            let con1 = { createdAt: { lt: moment().subtract(0, 'minutes').toDate() } };
             let con2 = { responsesCount: { gte: 10 } };
             let requests = await app.models.Pdrequest.find({
                 where: { or: [con1, con2] },
@@ -205,17 +212,18 @@ module.exports = function (Pduser) {
         }
     }
 
-    Pduser.addNotificationTokens = async function (id, tokenObj) {
+    Pduser.addNotificationTokens = async function (id, token) {
         console.log(`${id} ${JSON.stringify(tokenObj)}`);
         try {
-            if (!tokenObj || !tokenObj.token || !_.isString(tokenObj.token)) {
-                throw new Error(`Invalid tokenObj ${JSON.stringify(tokenObj)}`);
-            }
+            
             let pduser = await Pduser.findById(id);
             if (!pduser) {
                 throw new Error(`No user with id ${id}`);
             }
+            let tokenObj = {};
+            tokenObj.token = token;
             tokenObj.updatedAt = new Date().toISOString();
+
             let index = _.findIndex(pduser.notificationTokens, function (o) {
                 return o.token == tokenObj.token;
             })
@@ -237,8 +245,8 @@ module.exports = function (Pduser) {
             arg: 'id',
             type: 'string'
         }, {
-            arg: "tokenObj",
-            type: "object",
+            arg: "token",
+            type: "string",
             http: {
                 source: 'body'
             }

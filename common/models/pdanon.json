@@ -1,0 +1,28 @@
+{
+    "name": "Pdanon",
+    "plural": "pdanons",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
+    },
+    "properties": {
+        "notificationTokens": {
+            "type": "array",
+            "default": []
+        },
+        "deviceId":{
+            "type":"string"
+        }
+    },
+    "validations": [],
+    "relations": {
+        "_defaultLocation": {
+            "type": "embedsOne",
+            "model": "Pdlocation",
+            "property": "defaultLocation"
+        }
+    },
+    "acls": [],
+    "methods": {}
+}
