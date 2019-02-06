@@ -288,6 +288,9 @@ module.exports = function (Pduser) {
     }
 
 
+    
+
+
 
 
     Pduser.saveDeviceLocation = async function (id, deviceLocation) {
