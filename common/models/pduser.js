@@ -17,6 +17,7 @@ const tokenNoVerfiy = ["signIn"];
 
 module.exports = function (Pduser) {
     Pduser.signIn = async function (preSignin) {
+        console.log(preSignin);
 
         try {
             let pduser = null;
@@ -40,9 +41,10 @@ module.exports = function (Pduser) {
                 if (preSignin.email) {
                     newUser.email = preSignin.email;
                 }
-                if(preSignin.notificationToken){
+                if (preSignin.notificationToken) {
                     newUser.notificationTokens = [];
-                    newUser.notificationTokens.push(preSignin.notificationToken);
+                    let dateStr = new Date().toISOString();
+                    newUser.notificationTokens.push({ token: preSignin.notificationToken, createdAt: dateStr, updatedAt: dateStr });
                 }
                 switch (preSignin.type) {
                     case "facebook":
@@ -60,6 +62,7 @@ module.exports = function (Pduser) {
                     default:
                         throw new Error("Unknown signin type");
                 }
+                console.log(`creating new user ${JSON.stringify(newUser)}`);
                 pduser = await Pduser.create(newUser);
             }
             let token = jwt.sign({
@@ -82,7 +85,7 @@ module.exports = function (Pduser) {
         }
     }
 
-    
+
 
     Pduser.remoteMethod('signIn', {
         accepts: [{
@@ -212,24 +215,26 @@ module.exports = function (Pduser) {
         }
     }
 
-    Pduser.addNotificationTokens = async function (id, token) {
-        console.log(`${id} ${JSON.stringify(tokenObj)}`);
+    Pduser.updateNotificationTokens = async function (id, token) {
+        // console.log(`${id} ${JSON.stringify(tokenObj)}`);
         try {
-            
+
             let pduser = await Pduser.findById(id);
             if (!pduser) {
                 throw new Error(`No user with id ${id}`);
             }
             let tokenObj = {};
             tokenObj.token = token;
-            tokenObj.updatedAt = new Date().toISOString();
-
+            let dateStr = new Date().toISOString();
             let index = _.findIndex(pduser.notificationTokens, function (o) {
                 return o.token == tokenObj.token;
             })
             if (index < 0) {
+                tokenObj.createdAt = dateStr;
+                tokenObj.updatedAt = dateStr;
                 pduser.notificationTokens.push(tokenObj);
             } else {
+                tokenObj.updatedAt = dateStr;
                 pduser.notificationTokens[index] = tokenObj;
             }
             await pduser.save();
@@ -240,16 +245,13 @@ module.exports = function (Pduser) {
 
     }
 
-    Pduser.remoteMethod('addNotificationTokens', {
+    Pduser.remoteMethod('updateNotificationTokens', {
         accepts: [{
             arg: 'id',
             type: 'string'
         }, {
             arg: "token",
-            type: "string",
-            http: {
-                source: 'body'
-            }
+            type: "string"
         }],
         returns: {
             arg: 'result',
@@ -257,7 +259,7 @@ module.exports = function (Pduser) {
             root: true
         },
         http: {
-            verb: 'post',
+            verb: 'get',
             path: '/:id/notificationTokens'
         }
     });
@@ -392,7 +394,7 @@ module.exports = function (Pduser) {
     Pduser.verifyToken = async function (id, token) {
         console.log(`verifying ${token}...`);
         let user = await Pduser.findById(id);
-        
+
         if (user == null) {
             return false;
         } else {
@@ -407,9 +409,9 @@ module.exports = function (Pduser) {
                 console.log(`${ctx.method.name} whitelisted -- no verify`);
                 return;
             }
-            let {authtoken} = ctx.req.headers;
+            let { authtoken } = ctx.req.headers;
             let authToken = authtoken;
-            if(!authToken) throw new Error("NO_AUTH_TOKEN");
+            if (!authToken) throw new Error("NO_AUTH_TOKEN");
 
 
             let { id, realm } = jwt.verify(authToken, tokenSecret);
@@ -417,10 +419,10 @@ module.exports = function (Pduser) {
             if (id && realm && realm == "Pduser") {
 
                 let verified = await Pduser.verifyToken(id, authToken);
-                    if (!verified) {
-                        console.log("could not verify");
-                        throw new Error("UNVERIFIED_USER");
-                    }
+                if (!verified) {
+                    console.log("could not verify");
+                    throw new Error("UNVERIFIED_USER");
+                }
             } else {
                 console.log("holla");
                 throw new Error("UNVERIFIED_USER");
