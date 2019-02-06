@@ -267,11 +267,14 @@ module.exports = function (Pdrequest) {
                     lat: to.lat,
                     lng: to.lng
                 });
-                let fromQuery = { where: { _defaultLocation: { near: fromPoint, maxDistance: 10, unit: 'kilometers' } }, fields: { id: true } };
-                let toQuery = { where: { _defaultLocation: { near: toPoint, maxDistance: 10, unit: 'kilometers' } }, fields: { id: true } };
+                let fromQuery = { where: { defaultLocation: { near: fromPoint, maxDistance: 10, unit: 'kilometers' } }, fields: { id: true } };
+                let toQuery = { where: { defaultLocation: { near: toPoint, maxDistance: 10, unit: 'kilometers' } }, fields: { id: true } };
 
-                let uUsersAroundFrom = await app.models.UUser.find(fromQuery);
-                let uUsersAroundTo = await app.models.UUser.find(toQuery);
+                let uUsersAroundFrom = await app.models.Pduser.find(fromQuery);
+                let uUsersAroundTo = await app.models.Pduser.find(toQuery);
+                
+                console.log("here");
+
                 console.log(`users around from ${uUsersAroundFrom.length}`);
                 console.log(`users around to ${uUsersAroundTo.length}`);
                 let targetsFrom = [];
@@ -293,7 +296,7 @@ module.exports = function (Pdrequest) {
                         targetsLocal.push(uUserAroundTo);
                     }
                 })
-                targetsLocal = _.sortedUniqBy(targetsLocal, (targetLocal) => targetLocal.id);
+                targetsLocal = _.uniqBy(targetsLocal, (targetLocal) => targetLocal.id);
 
                 console.log(targetsFrom);
                 console.log(targetsTo);
