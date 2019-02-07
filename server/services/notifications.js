@@ -1,9 +1,13 @@
 
 var redis = require("redis");
 var queue = redis.createClient();
-const { Expo } = require('expo-server-sdk');
-let expo = new Expo();
-var request = require("request");
+// const { Expo } = require('expo-server-sdk');
+const async = require("async");
+var FCM = require('fcm-node');
+
+const serverKey = "AAAAU9SwCrc:APA91bFOqQcjoD8Dq8GE4O6IrgoBrnpzaK7ksgBIw_h6VcgjXG-U4rmmISYl8bIZFSEDok9HeeNjXvW4vzALcdS-3V10C7Ff4xYAmDCHMY_f8wbu4k4vj-O7QyrH-cbw8E_Yys2fAGJC";
+var fcm = new FCM(serverKey);
+
 module.exports = function () {
     return {
         init: function () {
@@ -11,27 +15,28 @@ module.exports = function () {
             queue.on("message", (channel, message) => {
                 console.log(`${channel} says ${message}`);
                 let notificationMessages = JSON.parse(message);
-                let verifiedMessages = notificationMessages.filter((notificationMessage) => {
-                    return Expo.isExpoPushToken(notificationMessage.to);
+                console.log(notificationMessages);
+
+                async.each(notificationMessages, (notificationMessage, callback) => {
+                    console.log('Sending to ' + notificationMessage.to);
+
+                    var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+                        to: notificationMessage.to,
+                        data: notificationMessage.data
+                    };
+
+                    fcm.send(message, function (err, response) {
+                        if (err) {
+                            console.log(err);
+                            callback(err);
+                        } else {
+                            console.log("Successfully sent with response: ", response);
+                            callback();
+                        }
+                    });
 
                 });
 
-                
-
-                let chunks = expo.chunkPushNotifications(verifiedMessages);
-                let tickets = [];
-
-                (async () => {
-                    for (let chunk of chunks) {
-                        try {
-                            let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-                            console.log(ticketChunk);
-                            tickets.push(...ticketChunk);
-                        } catch (error) {
-                            console.error(error);
-                        }
-                    }
-                })();
             })
             queue.subscribe("user_notifications");
         }

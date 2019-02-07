@@ -267,6 +267,7 @@ module.exports = function (Pduser) {
     Pduser.sendNotification = async function (id, body, data) {
         try {
             let pduser = await Pduser.findById(id);
+            data.userId = pduser.id;
             let messages = [];
             for (let notificationToken of pduser.notificationTokens) {
                 messages.push({

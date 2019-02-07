@@ -175,8 +175,8 @@ module.exports = function (Pdrequest) {
         }, {
             arg: 'hide',
             type: 'object',
-            http:{
-                source:"body"
+            http: {
+                source: "body"
             }
         }],
         returns: {
@@ -272,7 +272,7 @@ module.exports = function (Pdrequest) {
 
                 let uUsersAroundFrom = await app.models.Pduser.find(fromQuery);
                 let uUsersAroundTo = await app.models.Pduser.find(toQuery);
-                
+
                 console.log("here");
 
                 console.log(`users around from ${uUsersAroundFrom.length}`);
@@ -302,22 +302,22 @@ module.exports = function (Pdrequest) {
                 console.log(targetsTo);
                 console.log(targetsLocal);
 
-                let data = { pdrequestId: instance.id };
+                let data = { requestId: instance.id, requestTitle: instance.title, requestFromLocation: JSON.stringify(instance.from), requestToLocation: JSON.stringify(instance.to) };
 
                 //notify local users - local request
                 await Promise.all(targetsLocal.map(async (targetLocal) => {
-                    await app.models.UUser.sendNotification(targetLocal.id, `Someone has requested for ${instance.title} in your area. Reply or Forward`, { ...data, type: 'NEW_LOCAL_REQUEST' });
+                    await app.models.Pduser.sendNotification(targetLocal.id, `Someone has requested for ${instance.title} in your area. Reply or Forward`, { ...data, type: 'NEW_LOCAL_REQUEST' });
                 }));
 
                 //notify from users - outgoing request
                 await Promise.all(targetsFrom.map(async (targetFrom) => {
-                    await app.models.UUser.sendNotification(targetFrom.id, `Someone has requested for ${instance.title} in your area. Forward`, { ...data, type: 'NEW_OUTGOING_REQUEST' });
+                    await app.models.Pduser.sendNotification(targetFrom.id, `Someone has requested for ${instance.title} in your area. Forward`, { ...data, type: 'NEW_OUTGOING_REQUEST' });
                 }));
 
 
                 //notify to users - incoming request
                 await Promise.all(targetsTo.map(async (targetTo) => {
-                    await app.models.UUser.sendNotification(targetTo.id, `Someone has requested for ${instance.title} from your area. Reply`, { ...data, type: 'NEW_INCOMING_REQUEST' });
+                    await app.models.Pduser.sendNotification(targetTo.id, `Someone has requested for ${instance.title} from your area. Reply`, { ...data, type: 'NEW_INCOMING_REQUEST' });
                 }));
 
             }
