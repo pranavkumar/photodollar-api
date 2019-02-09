@@ -33,6 +33,10 @@
         "responsesCount": {
             "type": "number",
             "default": 0
+        },
+        "lastNotificationEpoch":{
+            "type":"string",
+            "default":null
         }
     },
     "validations": [],

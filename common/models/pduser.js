@@ -264,7 +264,7 @@ module.exports = function (Pduser) {
         }
     });
 
-    Pduser.sendNotification = async function (id, body, data) {
+    Pduser.sendNotification = async function (id, data) {
         try {
             let pduser = await Pduser.findById(id);
             data.userId = pduser.id;
@@ -273,7 +273,6 @@ module.exports = function (Pduser) {
                 messages.push({
                     to: notificationToken.token,
                     sound: 'default',
-                    body: body,
                     data: data,
                 });
             }

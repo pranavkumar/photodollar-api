@@ -2,6 +2,9 @@
 const _ = require("lodash");
 var app = require("../../server/server");
 var loopback = require('loopback');
+const moment = require("moment");
+
+const SECONDS_BEFORE_NEXT_NOTIFICATION = 60 * 3;
 
 module.exports = function (Pdrequest) {
     Pdrequest.getExpects = async (id) => {
@@ -306,18 +309,18 @@ module.exports = function (Pdrequest) {
 
                 //notify local users - local request
                 await Promise.all(targetsLocal.map(async (targetLocal) => {
-                    await app.models.Pduser.sendNotification(targetLocal.id, `Someone has requested for ${instance.title} in your area. Reply or Forward`, { ...data, type: 'NEW_LOCAL_REQUEST' });
+                    await app.models.Pduser.sendNotification(targetLocal.id, { ...data, type: 'NEW_LOCAL_REQUEST' });
                 }));
 
                 //notify from users - outgoing request
                 await Promise.all(targetsFrom.map(async (targetFrom) => {
-                    await app.models.Pduser.sendNotification(targetFrom.id, `Someone has requested for ${instance.title} in your area. Forward`, { ...data, type: 'NEW_OUTGOING_REQUEST' });
+                    await app.models.Pduser.sendNotification(targetFrom.id, { ...data, type: 'NEW_OUTGOING_REQUEST' });
                 }));
 
 
                 //notify to users - incoming request
                 await Promise.all(targetsTo.map(async (targetTo) => {
-                    await app.models.Pduser.sendNotification(targetTo.id, `Someone has requested for ${instance.title} from your area. Reply`, { ...data, type: 'NEW_INCOMING_REQUEST' });
+                    await app.models.Pduser.sendNotification(targetTo.id, { ...data, type: 'NEW_INCOMING_REQUEST' });
                 }));
 
             }
@@ -328,8 +331,33 @@ module.exports = function (Pdrequest) {
             }
 
         } else {
-            return;
+            
+            
+
         }
 
     });
+
+    Pdrequest.observe("before save", async function (ctx, next) {
+        let instance = ctx.instance;
+        console.log(`requestId ${instance.id} before save`);
+        if (!ctx.isNewInstance) {
+                let then = moment(instance.lastNotificationEpoch || instance.createdAt);
+                let now = moment(new Date());
+
+                let diff = moment.duration(now.diff(then)).asSeconds();
+                console.log(diff);
+
+                if (diff >= SECONDS_BEFORE_NEXT_NOTIFICATION) {
+                    console.log(`generating notifications for ${instance.id}`);
+                    Pdrequest.generateRequestNotifications();
+                    instance.lastNotificationEpoch = new Date().toISOString();
+                    
+                }
+        }
+    });
+
+    Pdrequest.generateRequestNotifications = async function(pdrequest){
+        console.log("generating notifications");
+    }
 };
