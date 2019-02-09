@@ -37,6 +37,22 @@
         "lastNotificationEpoch":{
             "type":"string",
             "default":null
+        },
+        "lastResponsesCount":{
+            "type":"number",
+            "default":0
+        },
+        "lastCommentsCount":{
+            "type":"number",
+            "default":0
+        },
+        "lastExpectsCount":{
+            "type":"number",
+            "default":0
+        },
+        "lastSharesCount":{
+            "type":"number",
+            "default":0
         }
     },
     "validations": [],

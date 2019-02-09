@@ -279,7 +279,7 @@ module.exports = function (Pduser) {
             if (messages.length > 0) {
                 queue.publish("user_notifications", JSON.stringify(messages));
             }
-            pduser.notifications.push({ body, data });
+            pduser.notifications.push({ data });
             await pduser.save();
         } catch (err) {
             throw err;

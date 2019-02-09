@@ -4,7 +4,7 @@ var app = require("../../server/server");
 var loopback = require('loopback');
 const moment = require("moment");
 
-const SECONDS_BEFORE_NEXT_NOTIFICATION = 60 * 3;
+const SECONDS_BEFORE_NEXT_NOTIFICATION = 60 * 0;
 
 module.exports = function (Pdrequest) {
     Pdrequest.getExpects = async (id) => {
@@ -331,8 +331,8 @@ module.exports = function (Pdrequest) {
             }
 
         } else {
-            
-            
+
+
 
         }
 
@@ -342,22 +342,56 @@ module.exports = function (Pdrequest) {
         let instance = ctx.instance;
         console.log(`requestId ${instance.id} before save`);
         if (!ctx.isNewInstance) {
-                let then = moment(instance.lastNotificationEpoch || instance.createdAt);
-                let now = moment(new Date());
+            let then = moment(instance.lastNotificationEpoch || instance.createdAt);
+            let now = moment(new Date());
 
-                let diff = moment.duration(now.diff(then)).asSeconds();
-                console.log(diff);
+            let diff = moment.duration(now.diff(then)).asSeconds();
+            console.log(diff);
 
-                if (diff >= SECONDS_BEFORE_NEXT_NOTIFICATION) {
-                    console.log(`generating notifications for ${instance.id}`);
-                    Pdrequest.generateRequestNotifications();
-                    instance.lastNotificationEpoch = new Date().toISOString();
-                    
-                }
+            if (diff >= SECONDS_BEFORE_NEXT_NOTIFICATION) {
+                console.log(`generating notifications for ${instance.id}`);
+                Pdrequest.generateRequestNotifications(instance);
+                instance.lastNotificationEpoch = new Date().toISOString();
+
+            }
         }
     });
 
-    Pdrequest.generateRequestNotifications = async function(pdrequest){
+    Pdrequest.generateRequestNotifications = async function (pdrequest) {
         console.log("generating notifications");
+        //someone replied your request
+
+        //someone commented on your request
+        //your request was upvoted x times
+        //your request was shared x times
+
+        //cron runs every 30 mins
+        //before next notification is 10 minutes
+        let requestUser = await pdrequest.user.get();
+        let requestTitle = await pdrequest.title;
+
+        console.log(requestUser.name);
+        let lastCommentsCount = pdrequest.lastCommentsCount;
+
+        let comments = await pdrequest.comments.find({ skip: lastCommentsCount, include: ["user"] });
+
+        console.log(comments);
+        if (comments != null) {
+            let newCommentsLength = comments.length - lastCommentsCount;
+            let newCommentsUserArray = [];
+            let newCommentsBodyArray = [];
+            for (var i = 0; i < comments.length; i++) {
+                let user = await comments[i].user.get();
+                newCommentsBodyArray.push(comments[i].body);
+                newCommentsUserArray.push({ name: user.name, id: user.id });
+            }
+            let notificationObj = { requestTitle, newCommentsLength, newCommentsUserArray: JSON.stringify(newCommentsUserArray), newCommentsBodyArray: JSON.stringify(newCommentsBodyArray), type: "REQUEST_COMMENTS_ADDED", };
+            console.log(notificationObj);
+            await app.models.Pduser.sendNotification(requestUser.id, notificationObj);
+        }
+
+
     }
+
+
 };
