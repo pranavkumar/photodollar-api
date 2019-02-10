@@ -372,11 +372,11 @@ module.exports = function (Pdrequest) {
 
         console.log(requestUser.name);
         let lastCommentsCount = pdrequest.lastCommentsCount;
-
         let comments = await pdrequest.comments.find({ skip: lastCommentsCount, include: ["user"] });
 
-        console.log(comments);
+
         if (comments != null) {
+            console.log(`generating notifications for ${comments.length} comments`);
             let newCommentsLength = comments.length - lastCommentsCount;
             let newCommentsUserArray = [];
             let newCommentsBodyArray = [];
@@ -385,10 +385,51 @@ module.exports = function (Pdrequest) {
                 newCommentsBodyArray.push(comments[i].body);
                 newCommentsUserArray.push({ name: user.name, id: user.id });
             }
-            let notificationObj = { requestTitle, newCommentsLength, newCommentsUserArray: JSON.stringify(newCommentsUserArray), newCommentsBodyArray: JSON.stringify(newCommentsBodyArray), type: "REQUEST_COMMENTS_ADDED", };
+            let notificationObj = {
+                requestTitle,
+                newCommentsLength,
+                newCommentsUserArray: JSON.stringify(newCommentsUserArray),
+                newCommentsBodyArray: JSON.stringify(newCommentsBodyArray),
+                type: "REQUEST_COMMENTS_ADDED",
+            };
+            console.log(notificationObj);
+            // await app.models.Pduser.sendNotification(requestUser.id, notificationObj);
+        }
+
+        //replies
+
+        let lastResponsesCount = pdrequest.lastResponsesCount;
+        let responses = await pdrequest.responses.find({ skip: lastResponsesCount, include: ["user"] });
+
+        if (responses != null) {
+            console.log(`generating notification for ${responses.length} responses`);
+
+            let newResponsesImageArray = [];
+            let newResponsesUserArray = [];
+
+            for (var i = 0; i < responses.length; i++) {
+                let user = await responses[i].user.get();
+                newResponsesImageArray.push(responses[i].image);
+                newResponsesUserArray.push({ name: user.name, id: user.id });
+            }
+
+            let notificationObj = {
+                requestId: pdrequest.id,
+                requestTitle,
+                type: "REQUEST_RESPONSES_ADDED",
+                newResponsesImageArray: JSON.stringify(newResponsesImageArray),
+                newResponsesUserArray: JSON.stringify(newResponsesUserArray)
+            };
+
             console.log(notificationObj);
             await app.models.Pduser.sendNotification(requestUser.id, notificationObj);
+
+        } else {
+            console.log(`No responses found`);
         }
+
+
+
 
 
     }
