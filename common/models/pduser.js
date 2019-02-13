@@ -115,7 +115,7 @@ module.exports = function (Pduser) {
                 throw new Error(`PduserId ${id} does not exist.`);
             }
             // { createdAt: { lt: moment().subtract(3, 'hours').toDate() } }
-            let con1 = { createdAt: { lt: moment().subtract(0, 'minutes').toDate() } };
+            let con1 = { createdAt: { lt: moment().subtract(15, 'minutes').toDate() } };
             let con2 = { responsesCount: { gte: 10 } };
             let requests = await app.models.Pdrequest.find({
                 where: { or: [con1, con2] },
@@ -160,11 +160,40 @@ module.exports = function (Pduser) {
                 order: 'createdAt ASC'
             });
 
-            return { requests: requests, pendingRequests: pendingRequests };
+            return { requests: requests};
         } catch (err) {
             throw err;
         }
     }
+
+    Pduser.getPendingRequests = async function(id){
+        let con3 = { createdAt: { gte: moment().subtract(15, 'minutes').toDate() } };
+            let con4 = { responsesCount: { lt: 10 } };
+
+            let pendingRequests = await app.models.Pdrequest.find({
+                where: { and: [con3, con4] },
+                include: [{ "relation": "responses", scope: { include: ["user"] } }, "user"],
+                order: 'createdAt ASC'
+            });
+
+            return {pendingRequests : pendingRequests};
+    }
+
+    Pduser.remoteMethod('getPendingRequests', {
+        accepts: [{
+            arg: 'id',
+            type: 'string'
+        }],
+        returns: {
+            arg: 'result',
+            type: 'object',
+            root: true
+        },
+        http: {
+            verb: 'get',
+            path: '/:id/pendingRequests'
+        }
+    });
 
     Pduser.addContacts = async (id, contacts) => {
         try {
