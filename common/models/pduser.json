@@ -28,6 +28,9 @@
         "facebook": {
             "type": "object"
         },
+        "twitter":{
+            "type":"object"
+        },
         "google": {
             "type": "object"
         },

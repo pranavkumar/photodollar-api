@@ -23,6 +23,12 @@ module.exports = function (Pdresponse) {
 
     Pdresponse.getUserResponses = async function (userId) {
         let responses = await Pdresponse.find({ where: { userId: userId }, order: "createdAt DESC" });
+
+        for (var i = 0; i < responses.length; i++) {
+            let request = await app.models.Pdrequest.findById(responses[i].requestId);
+            responses[i].requestTitle = request.title;
+        }
+
         return responses;
     }
 

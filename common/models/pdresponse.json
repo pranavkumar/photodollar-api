@@ -1,1 +1,30 @@
-{"name":"Pdresponse","plural":"pdresponses","base":"PersistedModel","idInjection":true,"options":{"validateUpsert":true},"mixins":{"TimeStamp":true},"properties":{"caption":{"type":"string"},"image":{"type":"object"}},"validations":[],"relations":{"user":{"type":"belongsTo","model":"Pduser","foreignKey":"userId"}},"acls":[],"methods":{}}
+{
+    "name": "Pdresponse",
+    "plural": "pdresponses",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
+    },
+    "mixins": {
+        "TimeStamp": true
+    },
+    "properties": {
+        "caption": {
+            "type": "string"
+        },
+        "image": {
+            "type": "object"
+        }
+    },
+    "validations": [],
+    "relations": {
+        "user": {
+            "type": "belongsTo",
+            "model": "Pduser",
+            "foreignKey": "userId"
+        }
+    },
+    "acls": [],
+    "methods": {}
+}
