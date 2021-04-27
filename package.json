@@ -28,7 +28,7 @@
     "loopback-ds-timestamp-mixin": "^3.4.1",
     "moment": "^2.24.0",
     "nexmo": "^2.4.0",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "serve-favicon": "^2.0.1",
